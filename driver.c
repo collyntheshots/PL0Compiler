@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "lex.h"
 #include "parser.h"
 #include "codegen.h"
@@ -11,7 +12,7 @@ int main(int argc, char **argv)
 
 	if (argc < 2)
 		printf("error : please include the file name");
-	else if (argc > 2)
+	else if (argc > 2) // cmdline flag handling
 	{
 		for (i = 2; i < argc; i++)
 		{
@@ -28,7 +29,7 @@ int main(int argc, char **argv)
 
 	char *inputfile = malloc(500 * sizeof(char));
 	char c = fgetc(ifp);
-	int i = 0;
+	i = 0;
 	while (1)
 	{
 		inputfile[i++] = c;
@@ -39,11 +40,11 @@ int main(int argc, char **argv)
 	inputfile[i] = '\0';
 
 	printf("%s\n", inputfile);
-
-	lexeme *list = lex_analyze(inputfile);
+	fclose(ifp);
+	lexeme *list = lex_analyze(argv[1]);
 	symbol *table = parse(list);
-	instruction *code = generate_code(table, list);
-	virtual_machine(code);
+	//instruction *code = generate_code(table, list);
+	//virtual_machine(code);
 
 	return 0;
 }

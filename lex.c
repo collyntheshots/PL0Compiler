@@ -13,6 +13,8 @@
 // holds struct and two enums
 #include "lex.h"
 
+int len = 0;
+
 /*
 ==============================================================================
 This program uses a struct to represent an individual token, it collects them
@@ -58,7 +60,7 @@ void printErr(int err)
 }
 
 // Prints the Lexeme Table with the proper spacing
-void printTable(struct lexeme tokens[], int len)
+void printTable(lexeme *tokens)
 {
 	int i;
 	printf("Lexeme Table:\n");
@@ -74,7 +76,7 @@ void printTable(struct lexeme tokens[], int len)
 }
 
 // Prints the Lexeme List with the proper spacing
-void printList(struct lexeme tokens[], int len)
+void printList(lexeme *tokens)
 {
 	int i;
 	char buff[100];
@@ -210,19 +212,19 @@ int checkErr(char *lex, int tType)
 }
 
 // Processes the file passed through as fName
-int procFile(char *fName, struct lexeme tokens[])
+lexeme *procFile(char *fName, lexeme *tokens)
 {
 	FILE *fp = fopen(fName, "r");
 
 	// cache acts as a buffer to read the chars into
 	char cache[1000];
-	int c, len = 0, i = 0;
+	int c, i = 0;
 	if (fp == NULL)
 	{
 		// Prints to std error when file is not opened properly
 		fprintf(stderr, "error opening file in procFile");
 		exit(0);
-		return -1;
+		return NULL;
 	}
 
 	// reads to the end of the file
@@ -319,13 +321,14 @@ int procFile(char *fName, struct lexeme tokens[])
 	}
 
 	fclose(fp);
-	return len;
+	return tokens;
 }
 
 lexeme* lex_analyze(char *inputfile)
 {
 	lexeme *list = malloc(500 * sizeof(lexeme));
-	int len = procFile(inputfile, list);
+	list = procFile(inputfile, list);
+	//printList(list);
 	printf("lex is analyzed\n");
 	return list;
 }
@@ -337,6 +340,7 @@ int main(int argc, char *argv[])
 	return 0;
 }
 */
+
 
 /*
 int main(int argc, char *argv[])

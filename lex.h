@@ -25,5 +25,7 @@ whilesym, dosym, callsym, constsym, varsym, procsym, writesym,
 readsym , elsesym } token_type;
 
 lexeme* lex_analyze(char *inputfile);
+void printList(lexeme *tokens);
+void printTable(lexeme *tokens);
 
 #endif

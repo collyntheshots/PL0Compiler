@@ -1,1 +1,4 @@
-this is my input file
+var x, y;
+begin
+  x := y + 56;
+end.

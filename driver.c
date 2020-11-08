@@ -7,11 +7,25 @@
 
 int main(int argc, char **argv)
 {
+	int printLex = 0, printAss = 0, printVM = 0, i;
+
 	if (argc < 2)
 		printf("error : please include the file name");
-	
+	else if (argc > 2)
+	{
+		for (i = 2; i < argc; i++)
+		{
+			if (strcmp(argv[i], "-l") == 0)
+				printLex = 1;
+			else if (strcmp(argv[i], "-a") == 0)
+				printAss = 1;
+			else if (strcmp(argv[i], "-v") == 0)
+				printVM = 1;
+		}
+	}
+
 	FILE *ifp = fopen(argv[1], "r");
-	
+
 	char *inputfile = malloc(500 * sizeof(char));
 	char c = fgetc(ifp);
 	int i = 0;
@@ -23,13 +37,13 @@ int main(int argc, char **argv)
 			break;
 	}
 	inputfile[i] = '\0';
-	
+
 	printf("%s\n", inputfile);
-	
+
 	lexeme *list = lex_analyze(inputfile);
 	symbol *table = parse(list);
 	instruction *code = generate_code(table, list);
 	virtual_machine(code);
-	
+
 	return 0;
 }

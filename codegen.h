@@ -4,13 +4,13 @@
 #include "lex.h"
 #include "parser.h"
 
+//struct for instructions
 typedef struct instruction
 {
-	int opcode;
-	char *op;
-	int l;
-	int m;
-	
+    int op;
+    int r;
+    int l;
+    int m;
 } instruction;
 
 instruction* generate_code(symbol *table, lexeme *list);

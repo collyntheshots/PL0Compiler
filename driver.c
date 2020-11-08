@@ -43,6 +43,10 @@ int main(int argc, char **argv)
 	fclose(ifp);
 	lexeme *list = lex_analyze(argv[1]);
 	symbol *table = parse(list);
+	if (table == NULL)
+		return 0;
+	else
+		printf("No errors, program is syntactically correct\n");
 	//instruction *code = generate_code(table, list);
 	//virtual_machine(code);
 

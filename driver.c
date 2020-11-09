@@ -41,14 +41,16 @@ int main(int argc, char **argv)
 
 	printf("%s\n", inputfile);
 	fclose(ifp);
-	lexeme *list = lex_analyze(argv[1]);
-	symbol *table = parse(list);
+
+	lexeme *list = lex_analyze(argv[1]); //lex.c
+	symbol *table = parse(list);			 //parse.c
 	if (table == NULL)
 		return 0;
 	else
 		printf("No errors, program is syntactically correct\n");
-	//instruction *code = generate_code(table, list);
-	//virtual_machine(code);
+
+	instruction *code = generate_code(table, list); //codegen.c
+	virtual_machine(code); //vm.c
 
 	return 0;
 }

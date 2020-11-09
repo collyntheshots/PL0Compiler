@@ -6,6 +6,15 @@
 #include "codegen.h"
 #include "vm.h"
 
+void printCode1(instruction *code)
+{
+	int i;
+	for (i = 0; i < 500; i++)
+	{
+		printf("%d %d %d %d %d\n", i, code[i].op, code[i].r, code[i].l, code[i].m);
+	}
+}
+
 int main(int argc, char **argv)
 {
 	int printLex = 0, printAss = 0, printVM = 0, i;
@@ -50,7 +59,8 @@ int main(int argc, char **argv)
 		printf("No errors, program is syntactically correct\n");
 
 	instruction *code = generate_code(table, list); //codegen.c
-	virtual_machine(code); //vm.c
+	printCode1(code);
+	//virtual_machine(code); //vm.c
 
 	return 0;
 }

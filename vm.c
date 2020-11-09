@@ -29,10 +29,22 @@ int base(int l, int base);
 void execute(instruction *code);
 void printExecution(void);
 void printCode(void);
-void initialize(void);
+//void initialize(void);
 //void store(instruction *code);
 
-void initialize(void)
+//base function
+int base(int l, int base)
+{
+    int b1 = base;
+    while (l > 0)
+    {
+        b1 = stack[b1];
+        l--;
+    }
+    return b1;
+}
+/*
+instruction *initialize(instruction *code)
 {
 	int i;
 	//setting all register file values to zero
@@ -50,13 +62,15 @@ void initialize(void)
 	//setting all text values to zero
 	for (i = 0; i < MAX_CODE_LENGTH; i++)
 	{
-		text[i].op = 0;
-		text[i].r = 0;
-		text[i].l = 0;
-		text[i].m = 0;
+		code[i].op = 0;
+		code[i].r = 0;
+		code[i].l = 0;
+		code[i].m = 0;
 	}
-}
 
+	return code;
+}
+*/
 /*
 void store(instruction *code)
 {
@@ -80,6 +94,7 @@ void store(instruction *code)
 
 void execute(instruction *code)
 {
+	printf("enter execute\n");
 	int OP, R, L, M;
 	//creating sp, bp, pc, and ir
 	int sp = MAX_STACK_HEIGHT;
@@ -88,15 +103,17 @@ void execute(instruction *code)
 	int ir = 0;
 	int haltFlag = 1;
 
-	initialize();
+	//code = initialize();
 
 	while (haltFlag == 1)
 	{
+		printf("enter execute while loop %d\n", haltFlag);
 		//assign vars their text counterpart
 		OP = code[pc].op;
 		R = code[pc].r;
 		L = code[pc].l;
 		M = code[pc].m;
+		pc++;
 		//switch for execution (22 opcodes, 22 cases)
 		switch (OP)
 		{
@@ -221,6 +238,7 @@ void execute(instruction *code)
 		}
 
 	}
+	printf("exit execute\n");
 }
 
 void printExecution(void)
@@ -235,6 +253,7 @@ void printCode(void)
 
 void virtual_machine(instruction *code)
 {
+	printf("in vm\n");
 	execute(code);
 	printf("print the stack\n");
 	return;

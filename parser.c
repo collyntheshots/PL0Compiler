@@ -15,7 +15,7 @@ typedef enum {
 int lexL = 0;
 int numSym = 0;
 
-symbol *add(symbol *table, int kind, char *name, int val, int level, int addr, int mark);
+void add(symbol *table, int kind, char *name, int val, int level, int addr, int mark);
 bool sanityCheck(char *str, symbol *table);
 symbol *program(lexeme *list, symbol *table);
 symbol *block(lexeme *list, symbol *table);
@@ -28,7 +28,7 @@ symbol *term(lexeme *list, symbol *table);
 symbol *factor(lexeme *list, symbol *table);
 
 // adds token to the symbol table and returns the new table
-symbol *add(symbol *table, int kind, char *name, int val, int level, int addr, int mark)
+void add(symbol *table, int kind, char *name, int val, int level, int addr, int mark)
 {
 	table[numSym].kind = kind;
 	strcpy(table[numSym].name, name);
@@ -36,7 +36,8 @@ symbol *add(symbol *table, int kind, char *name, int val, int level, int addr, i
 	table[numSym].level = level;
 	table[numSym].addr = addr;
 	table[numSym].mark = mark;
-	return table;
+	numSym++;
+	//return table;
 }
 
 // returns false if the symbol is in the table and true if not
@@ -101,7 +102,7 @@ symbol *constDec(lexeme *list, symbol *table)
 				printf("error in constDec, numbersym\n");
 				return NULL;
 			}
-			table = add(table, 1, cache, atoi(list[lexL].lex), 0, 0, -1);
+			add(table, 1, cache, atoi(list[lexL].lex), 0, 0, -1);
 			lexL++;
 		} while (TOKEN == commasym);
 		if (TOKEN != semicolonsym)
@@ -134,7 +135,8 @@ symbol *varDec(lexeme *list, symbol *table)
 				printf("error in varDec, failed sanityCheck\n");
 				return NULL;
 			}
-			table = add(table, 2, cache, 0, 0, numVars+2, -1);
+
+			add(table, 2, cache, 0, 0, numVars+2, -1);
 			lexL++;
 		} while (TOKEN == commasym);
 
@@ -167,7 +169,7 @@ symbol *statement(lexeme *list, symbol *table)
 		strcpy(cache, list[lexL].lex);
 		if (sanityCheck(cache, table))
 		{
-			printf("indent not in table error, statement\n");
+			printf("indent not in table error, statement %s\n", cache);
 			return NULL;
 		}
 		if (getKind(cache, table) != VAR)
@@ -193,7 +195,7 @@ symbol *statement(lexeme *list, symbol *table)
 			return NULL;
 		}
 
-		while (TOKEN == commasym)
+		while (TOKEN == semicolonsym)
 		{
 			lexL++;
 			if ((table = statement(list, table)) == NULL)

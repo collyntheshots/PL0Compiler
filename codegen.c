@@ -304,8 +304,8 @@ instruction *emit(instruction *code, int op, int r, int l, int m)
 
 instruction *generate_code(symbol *table, lexeme *list)
 {
-    instruction *code = malloc(500 * sizeof(instruction));
-	 code = program1(table, list, code);
-    printf("code has been generated\n");
-    return code;
+	instruction *code = malloc(500 * sizeof(instruction));
+	code = program1(table, list, code);
+	printf("code has been generated\n");
+	return code;
 }

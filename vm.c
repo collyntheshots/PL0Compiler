@@ -94,7 +94,7 @@ void store(instruction *code)
 
 void execute(instruction *code)
 {
-	printf("enter execute\n");
+	//printf("enter execute\n");
 	int OP, R, L, M;
 	//creating sp, bp, pc, and ir
 	int sp = MAX_STACK_HEIGHT;
@@ -107,7 +107,7 @@ void execute(instruction *code)
 
 	while (haltFlag == 1)
 	{
-		printf("enter execute while loop %d\n", haltFlag);
+		//printf("enter execute while loop %d\n", haltFlag);
 		//assign vars their text counterpart
 		OP = code[pc].op;
 		R = code[pc].r;
@@ -238,7 +238,7 @@ void execute(instruction *code)
 		}
 
 	}
-	printf("exit execute\n");
+	//printf("exit execute\n");
 }
 
 void printExecution(void)
@@ -253,7 +253,7 @@ void printCode(void)
 
 void virtual_machine(instruction *code)
 {
-	printf("in vm\n");
+	//printf("in vm\n");
 	execute(code);
 	printf("print the stack\n");
 	return;

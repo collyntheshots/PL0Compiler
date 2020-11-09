@@ -57,10 +57,11 @@ int main(int argc, char **argv)
 		return 0;
 	else
 		printf("No errors, program is syntactically correct\n");
+	//printTable(list);
 
 	instruction *code = generate_code(table, list); //codegen.c
-	printCode1(code);
-	//virtual_machine(code); //vm.c
+	//printCode1(code);
+	virtual_machine(code); //vm.c
 
 	return 0;
 }

@@ -49,7 +49,7 @@ instruction *block1(symbol *table, lexeme *list, instruction *code)
 	{
 		do
 		{
-			lexL1 + 4;
+			lexL1 += 4;
 		} while (TOKEN == commasym);
 		lexL1++;
 	}
@@ -58,7 +58,7 @@ instruction *block1(symbol *table, lexeme *list, instruction *code)
 		do
 		{
 			numVars++;
-			lexL1 + 2;
+			lexL1 += 2;
 		} while (TOKEN == commasym);
 		lexL1++;
 	}
@@ -69,12 +69,12 @@ instruction *block1(symbol *table, lexeme *list, instruction *code)
 
 instruction *statement1(symbol *table, lexeme *list, instruction *code)
 {
-	int tx, temp;
+	int tx, temp, temp2;
 	if (TOKEN == identsym)
 	{
 		tx = lookup(list[lexL1].lex, table);
-		code[lexL1].op = identsym;
-		lexL1 + 2;
+		//code[lexL1].op = identsym;
+		lexL1 += 2;
 		code = expression1(0, table, list, code);
 		code = emit(code, 4, 0, 0, table[tx].val);
 	}
@@ -91,7 +91,6 @@ instruction *statement1(symbol *table, lexeme *list, instruction *code)
 	}
 	if (TOKEN == ifsym)
 	{
-
 		lexL1++;
 		code = condition1(table, list, code);
 		temp = cx;
@@ -106,11 +105,11 @@ instruction *statement1(symbol *table, lexeme *list, instruction *code)
 		temp = cx;
 		code = condition1(table, list, code);
 		lexL1++;
-		temp = cx;
+		temp2 = cx;
 		code = emit(code, 8, 0, 0, 0);
 		code = statement1(table, list, code);
-		code = emit(code, 7, 0, 0, cx);
-		code[temp].m = cx;
+		code = emit(code, 7, 0, 0, temp);
+		code[temp2].m = cx;
 	}
 	if (TOKEN == readsym)
 	{

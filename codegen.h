@@ -7,10 +7,10 @@
 //struct for instructions
 typedef struct instruction
 {
-    int op;
-    int r;
-    int l;
-    int m;
+	int op;
+	int r;
+	int l;
+	int m;
 } instruction;
 
 instruction* generate_code(symbol *table, lexeme *list);

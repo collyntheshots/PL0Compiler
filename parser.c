@@ -56,6 +56,7 @@ symbol *program(lexeme *list, symbol *table)
 	if (TOKEN != periodsym)
 	{
 		printf("no period error\n");
+		exit(1);
 		return NULL;
 	}
 	return table;
@@ -81,25 +82,29 @@ symbol *constDec(lexeme *list, symbol *table)
 			lexL++;
 			if (TOKEN != identsym)
 			{
-				printf("error in constDec, identsym\n");
+				printf("error no identifier after const\n");
+				exit(1);
 				return NULL;
 			}
 			strcpy(cache, list[lexL].lex);
 			if (!sanityCheck(cache, table))
 			{
-				printf("error in constDec, failed sanityCheck\n");
+				printf("error const identifier already defined\n");
+				exit(1);
 				return NULL;
 			}
 			lexL++;
 			if (TOKEN != eqsym)
 			{
-				printf("error in constDec, eqsym\n");
+				printf("error expected '=' after identifier\n");
+				exit(1);
 				return NULL;
 			}
 			lexL++;
 			if (TOKEN != numbersym)
 			{
-				printf("error in constDec, numbersym\n");
+				printf("error expected int value after '='\n");
+				exit(1);
 				return NULL;
 			}
 			add(table, 1, cache, atoi(list[lexL].lex), 0, 0, -1);
@@ -107,7 +112,8 @@ symbol *constDec(lexeme *list, symbol *table)
 		} while (TOKEN == commasym);
 		if (TOKEN != semicolonsym)
 		{
-			printf("error in constDec, semicolonsym\n");
+			printf("error missing semicolon\n");
+			exit(1);
 			return NULL;
 		}
 		lexL++;
@@ -126,13 +132,15 @@ symbol *varDec(lexeme *list, symbol *table)
 			lexL++;
 			if (TOKEN != identsym)
 			{
-				printf("error in varDec, identsym\n");
+				printf("error expected identifier after var\n");
+				exit(1);
 				return NULL;
 			}
 			strcpy(cache, list[lexL].lex);
 			if (!sanityCheck(cache, table))
 			{
-				printf("error in varDec, failed sanityCheck\n");
+				printf("error var identifier already defined\n");
+				exit(1);
 				return NULL;
 			}
 
@@ -142,7 +150,8 @@ symbol *varDec(lexeme *list, symbol *table)
 
 		if (TOKEN != semicolonsym)
 		{
-			printf("error in varDec, semicolonsym\n");
+			printf("error expected semicolon\n");
+			exit(1);
 			return NULL;
 		}
 		lexL++;
@@ -169,18 +178,21 @@ symbol *statement(lexeme *list, symbol *table)
 		strcpy(cache, list[lexL].lex);
 		if (sanityCheck(cache, table))
 		{
-			printf("indent not in table error, statement %s\n", cache);
+			printf("error indentifier not defined -> %s\n", cache);
+			exit(1);
 			return NULL;
 		}
 		if (getKind(cache, table) != VAR)
 		{
-			printf("indent not VAR error, statement\n");
+			printf("error indentifter not of type var\n");
+			exit(1);
 			return NULL;
 		}
 		lexL++;
 		if (TOKEN != becomessym)
 		{
-			printf("error in statement, becomessym\n");
+			printf("error expected ':='\n");
+			exit(1);
 			return NULL;
 		}
 		lexL++;
@@ -222,7 +234,8 @@ symbol *statement(lexeme *list, symbol *table)
 		}
 		if (TOKEN != thensym)
 		{
-			printf("error in statement, thensym\n");
+			printf("error expected 'then'\n");
+			exit(1);
 			return NULL;
 		}
 		lexL++;
@@ -243,7 +256,8 @@ symbol *statement(lexeme *list, symbol *table)
 		}
 		if (TOKEN != dosym)
 		{
-			printf("error in statement, dosym\n");
+			printf("error expected 'do'\n");
+			exit(1);
 			return NULL;
 		}
 		lexL++;
@@ -259,18 +273,21 @@ symbol *statement(lexeme *list, symbol *table)
 		lexL++;
 		if (TOKEN != identsym)
 		{
-			printf("error in statement, indentsym -> readsym\n");
+			printf("error expected identifier after read\n");
+			exit(1);
 			return NULL;
 		}
 		strcpy(cache, list[lexL].lex);
 		if (sanityCheck(cache, table))
 		{
-			printf("indent not in table error, statement\n");
+			printf("error indentifier not defined -> %s\n", cache);
+			exit(1);
 			return NULL;
 		}
 		if (getKind(cache, table) != VAR)
 		{
-			printf("indent not VAR error, statement\n");
+			printf("error indentifier not of type var\n");
+			exit(1);
 			return NULL;
 		}
 		lexL++;
@@ -281,13 +298,15 @@ symbol *statement(lexeme *list, symbol *table)
 		lexL++;
 		if (TOKEN != identsym)
 		{
-			printf("error in statement, indentsym -> readsym\n");
+			printf("error expected identifier after write\n");
+			exit(1);
 			return NULL;
 		}
 		strcpy(cache, list[lexL].lex);
 		if (sanityCheck(cache, table))
 		{
-			printf("indent not in table error, statement\n");
+			printf("error indentifier not defined -> %s\n", cache);
+			exit(1);
 			return NULL;
 		}
 		lexL++;
@@ -316,7 +335,8 @@ symbol *condition(lexeme *list, symbol *table)
 		}
 		if (TOKEN != eqsym || TOKEN != neqsym || TOKEN != lessym || TOKEN != leqsym || TOKEN != gtrsym || TOKEN != geqsym)
 		{
-			printf("error in condition, != = <> < <= > >=\n");
+			printf("error expected one of the following: '!=' '=' '<>' '<' '<=' '>' '>='\n");
+			exit(1);
 			return NULL;
 		}
 		lexL++;
@@ -375,7 +395,8 @@ symbol *factor(lexeme *list, symbol *table)
 		strcpy(cache, list[lexL].lex);
 		if (sanityCheck(cache, table))
 		{
-			printf("indent not in table error, factor\n");
+			printf("error indentifier not defined -> %s\n", cache);
+			exit(1);
 			return NULL;
 		}
 		lexL++;
@@ -394,14 +415,16 @@ symbol *factor(lexeme *list, symbol *table)
 		}
 		if (TOKEN != rparentsym)
 		{
-			printf("error in factor, rparentsym\n");
+			printf("error expected ')'\n");
+			exit(1);
 			return NULL;
 		}
 		lexL++;
 	}
 	else
 	{
-		printf("error in factor\n");
+		printf("error expected '('\n");
+		exit(1);
 		return NULL;
 	}
 	return table;

@@ -56,7 +56,7 @@ void printErr(int err)
 	else if (err == nametoolong)
 		printf("Name is too long\n");
 	else if (err == invalidsymbol)
-		printf("Invalid symbol\n");
+		printf("Invalid symbol -> ");
 }
 
 // Prints the Lexeme Table with the proper spacing
@@ -270,6 +270,9 @@ lexeme *procFile(char *fName, lexeme *tokens)
 		else if (isInvalid(cache[i]))
 		{
 			tokens[len].err = invalidsymbol;
+			printErr(tokens[len].err);
+			printf("%c\n", cache[i]);
+			exit(tokens[len].err);
 		}
 		// number handling
 		else if (isdigit(cache[i]))
@@ -313,7 +316,14 @@ lexeme *procFile(char *fName, lexeme *tokens)
 		tokens[len].tokType = tokenize(cache);
 		// if the err is already set to invalidsymbol we dont want to change that
 		if (tokens[len].err != invalidsymbol)
+		{
 			tokens[len].err = checkErr(tokens[len].lex, tokens[len].tokType);
+			if (tokens[len].err != 0)
+			{
+				printErr(tokens[len].err);
+				exit(tokens[len].err);
+			}
+		}
 		len++;
 		// stop reading the program if "end." is found
 		if (cache[0] == '.' && tokens[len-2].tokType == endsym)

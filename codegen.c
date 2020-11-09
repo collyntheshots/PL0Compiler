@@ -1,292 +1,316 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "lex.h"
 #include "parser.h"
 #include "codegen.h"
 
-int count = 0;
+#define TOKEN list[lexL].tokType
+#define CODE_SIZE 500
 
+int lexL = 0;
+int cx = 0;
+
+instruction *emit(instruction *code, int op, int r, int l, int m);
+int lookup(char *str, symbol *table);
 instruction *program(symbol *table, lexeme *list, instruction *code);
 instruction *block(symbol *table, lexeme *list, instruction *code);
 instruction *statement(symbol *table, lexeme *list, instruction *code);
 instruction *condition(symbol *table, lexeme *list, instruction *code);
-instruction *expression(symbol *table, lexeme *list, instruction *code);
-instruction *term(symbol *table, lexeme *list, instruction *code);//review later
-instruction *factor(symbol *table, lexeme *list, instruction *code);//review later
+instruction *expression(int regToEndUpIn, symbol *table, lexeme *list, instruction *code);
+instruction *term(int regToEndUpIn, symbol *table, lexeme *list, instruction *code);
+instruction *factor(int regToEndUpIn, symbol *table, lexeme *list, instruction *code);
 
+int lookup(char *str, symbol *table)
+{
+	int tx;
 
+	for (tx = 0; tx <= 500; tx++)
+	{
+		if (table[tx] == NULL)
+			break;
+		else if (strcmp(str, table[tx].name) == 0)
+			return tx;
+	}
+
+	return (tx = -1);
+}
 
 instruction *program(symbol *table, lexeme *list, instruction *code)
 {
-  emit(7, 0, 0, 1);
+	code = emit(code, 7, 0, 0, 1);
+	code = block(table, list, code);
+	code = emit(code, 9, 0, 0, 3);
+	return code;
+}
 
-  code = block(table, list, code);
-  //BLOCK
-  emit(9, 0, 0, 3);
-  return code;
+instruction *block(symbol *table, lexeme *list, instruction *code)
+{
+	int numVars = 0;
+	if (TOKEN == constsym)
+	{
+		do
+		{
+			lexL + 4;
+		} while (TOKEN == commasym);
+		lexL++;
+	}
+	if (TOKEN == varsym)
+	{
+		do
+		{
+			numVars++;
+			lexL + 2;
+		} while (TOKEN == commasym);
+		lexL++;
+	}
+	code = emit(code, 6, 0, 0, 3 + numVars);
+	code = statement(table, list, code);
+	return code;
+}
+
+instruction *statement(symbol *table, lexeme *list, instruction *code)
+{
+	int tx, temp;
+	if (TOKEN == identsym)
+	{
+		tx = lookup(list[lexL].lex, table);
+		code[lexL].op = identsym;
+		lexL + 2;
+		code = expression(0, table, list, code);
+		code = emit(code, 4, 0, 0, table[tx].val);
+	}
+	if (TOKEN == beginsym)
+	{
+		lexL++;
+		code = statement(table, list, code);
+		while (TOKEN == semicolonsym)
+		{
+			lexL++;
+			code = statement(table, list, code);
+		}
+		lexL++;
+	}
+	if (TOKEN == ifsym) ///////////////////////////////////
+	{
+
+		lexL++;
+		code = condition(table, list, code);
+		temp = cx;
+		code = emit(code, 8, 0, 0, 0);
+		lexL++;
+		code = statement(table, list, code);
+		code[temp].m = cx;
+		//fix JPC from earlier, savedCodeIndex.M = currentCodeIndex
+	}
+	if (TOKEN == whilesym) //////////////////////////////////////
+	{
+		lexL++;
+		temp = cx;
+		code = condition(table, list, code);
+		lexL++;
+		temp = cx;
+		code = emit(code, 8, 0, 0, 0);
+		code = statement(table, list, code);
+		code = emit(code, 7, 0, 0, cx);
+		code[temp].m = cx;
+		//fix JPC from earlier, savedCodeIndex.M = currentCodeIndex
+	}
+	if (TOKEN == readsym)
+	{
+		lexL++;
+		tx = lookup(list[lexL].lex, table);
+		lexL++;
+		code = emit(code, 9, 0, 0, 2);
+		code = emit(code, 4, 0, 0, table[tx].m);
+	}
+	if (TOKEN == writesym)
+	{
+		lexL++;
+		tx = lookup(list[lexL].lex, table);
+		if (TOKEN == varsym)
+		{
+			code = emit(code, 3, 0, 0, table[tx].val);
+			code = emit(code, 9, 0, 0, 1);
+		}
+		if (TOKEN == constsym)
+		{
+			code = emit(code, 1, 0, 0, table[tx].val);
+			code = emit(code, 9, 0, 0, 1);
+		}
+		lexL++;
+	}
+	return code;
+}
+
+instruction *condition(symbol *table, lexeme *list, instruction *code)
+{
+	if (TOKEN == oddsym)
+	{
+		lexL++;
+		code = expression(0, table, list, code);
+		code = emit(code, 15, 0, 0, 0);
+	}
+	else
+	{
+		code = expression(0, table, list, code);
+		if (TOKEN == eqsym)
+		{
+			lexL++;
+			code = expression(1, table, list, code);
+			code = emit(code, 17, 0, 0, 1);
+		}
+		if (TOKEN == neqsym)
+		{
+			lexL++;
+			code = expression(1, table, list, code);
+			code = emit(code, 18, 0, 0, 1);
+		}
+		if (TOKEN == lessym)
+		{
+			lexL++;
+			code = expression(1, table, list, code);
+			code = emit(code, 19, 0, 0, 1);
+		}
+		if (TOKEN == leqsym)
+		{
+			lexL++;
+			code = expression(1, table, list, code);
+			code = emit(code, 20, 0, 0, 1);
+		}
+		if (TOKEN == gtrsym)
+		{
+			lexL++;
+			code = expression(1, table, list, code);
+			code = emit(code, 21, 0, 0, 1);
+		}
+		if (TOKEN == geqsym)
+		{
+			lexL++;
+			code = expression(1, table, list, code);
+			code = emit(code, 22, 0, 0, 1);
+		}
+	}
+	return code;
+}
+
+instruction *expression(int regToEndUpIn, symbol *table, lexeme *list, instruction *code)
+{
+	if (TOKEN == plussym)
+	{
+		lexL++;
+	}
+	if (TOKEN == minussym)
+	{
+		lexL++;
+		code = term(regToEndUpIn, table, list, code);
+		code = emit(code, 10, regToEndUpIn, 0, 0);
+		while (TOKEN == plussym || TOKEN == minussym)
+		{
+			if (TOKEN == plussym)
+			{
+				lexL++;
+				code = term(regToEndUpIn+1, table, list, code);
+				code = emit(code, 11, regToEndUpIn, regToEndUpIn, regToEndUpIn+1);
+			}
+			if (TOKEN == minussym)
+			{
+				lexL++;
+				code = term(regToEndUpIn+1, table, list, code);
+				code = emit(code, 12, regToEndUpIn, regToEndUpIn, regToEndUpIn+1);
+			}
+		}
+		return code;
+	}
+	code = term(regToEndUpIn, table, list, code);
+	while (TOKEN == plussym || TOKEN == minussym)
+	{
+		if (TOKEN == plussym)
+		{
+			lexL++;
+			code = term(regToEndUpIn+1, table, list, code);
+			code = emit(code, 11, regToEndUpIn, regToEndUpIn, regToEndUpIn+1);
+		}
+		if (TOKEN == minussym)
+		{
+			lexL++;
+			code = term(regToEndUpIn+1, table, list, code);
+			code = emit(code, 12, regToEndUpIn, regToEndUpIn, regToEndUpIn+1);
+		}
+	}
+	return code;
+}
+
+instruction *term(int regToEndUpIn, symbol *table, lexeme *list, instruction *code)
+{
+	code = factor(regToEndUpIn, table, list, code);
+	while (TOKEN == multsym || TOKEN == slashsym)
+	{
+		if (TOKEN == multsym)
+		{
+			lexL++;
+			code = factor(regToEndUpIn + 1, table, list, code);
+			code = emit(code, 13, regToEndUpIn, regToEndUpIn, regToEndUpIn + 1);
+		}
+		if (TOKEN == slashsym)
+		{
+			lexL++;
+			code = factor(regToEndUpIn + 1, table, list, code);
+			code = emit(code, 14, regToEndUpIn, regToEndUpIn, regToEndUpIn + 1);
+		}
+	}
+	return code;
+}
+
+instruction *factor(int regToEndUpIn, symbol *table, lexeme *list, instruction *code)
+{
+	int tx;
+	if (TOKEN == identsym)
+	{
+		tx = lookup(list[lexL].lex, table);
+		if (TOKEN == constsym)
+		{
+			code = emit(code, 1, regToEndUpIn, 0, table[tx].val);
+		}
+		if (TOKEN == varsym)
+		{
+			code = emit(code, 3, regToEndUpIn, 0, table[tx].m);
+		}
+		lexL++;
+	}
+	else if (TOKEN == numbersym)
+	{
+		code = emit(code, 1, regToEndUpIn, 0, atoi(list[lexL].lex));
+		lexL++;
+	}
+	else
+	{
+		lexL++;
+		code = expression(regToEndUpIn, table, list, code);
+		lexL++;
+	}
+	return code;
+}
+
+instruction *emit(instruction *code, int op, int r, int l, int m)
+{
+	if (cx > CODE_SIZE)
+		printf("error\n");
+	else
+	{
+		code[cx].op = op;
+		code[cx].r = r;
+		code[cx].l = l;
+		code[cx].m = m;
+		cx++;
+	}
+	return code;
 }
 
 instruction *generate_code(symbol *table, lexeme *list)
 {
     instruction *code = malloc(500 * sizeof(instruction));
+	 code = program(table, list, code);
     printf("code has been generated\n");
-
-    BLOCK
-    {
-        int numVars = 0;
-        if (list[count].toktype == constsym)
-        {
-            do
-            {
-                count + 4;
-            } while (list[count].toktype == commasym);
-            count++;
-        }
-        if (list[count].toktype == varsym)
-        {
-            do
-            {
-                numVars++;
-                count + 2;
-            } while (list[count].toktype == commasym);
-            count++;
-        }
-        emit(6, 0, 0, 3 + numVars);
-        STATEMENT
-    }
-    STATEMENT
-    {
-        if (list[count].toktype == identsym)
-        {
-            //save symbol table index
-				code[count].op = identsym;
-            count + 2;
-            //EXPRESSION
-            emit(4, 0, 0, m comes from symbol table);
-        }
-        if (list[count].toktype == beginsym)
-        {
-            count++;
-            //STATEMENT
-            while (list[count].toktype == semicolonsym)
-            {
-                count++;
-                //STATEMENT
-            }
-            count++;
-        }
-        if (list[count].toktype == ifsym)
-        {
-			  int temp = cx;
-            count++;
-            //CONDITION
-            //save to code index
-            emit(8, 0, 0, 0);
-            count++;
-            //STATEMENT
-            //fix JPC from earlier, savedCodeIndex.M = currentCodeIndex
-        }
-        if (list[count].toktype == whilesym)
-        {
-            count++;
-            //save code index for condition
-            //CONDITION
-            count++;
-            //save code index for JMP
-            emit(8, 0, 0, 0);
-            //STATEMENT
-            emit(7, 0, 0, savedCodeIndexforCondition)
-            //fix JPC from earlier, savedCodeIndex.M = currentCodeIndex
-        }
-        if (list[count].toktype == readsym)
-        {
-            count++;
-            //save symbol to table index
-            count++;
-            emit(9, 0, 0, 2);
-            emit(4, 0, 0, m comes from symbol table);
-        }
-        if (list[count].toktype == writeesym)
-        {
-            count++;
-            //save symbol to table index
-            if (its a var)
-            {
-                emit(3, 0, 0, m comes from symbol table);
-                emit(9, 0, 0, 1);
-            }
-            if (its a constant)
-            {
-                emit(1, 0, 0 m comes from symbol table);
-                emit(9, 0, 0, 1);
-            }
-            count++;
-        }
-    }
-    CONDITION
-    {
-        if (list[count].toktype == oddsym)
-        {
-            count++;
-            //EXPRESSION
-            emit(15, 0, 0, 0);
-        }
-        else
-        {
-            //EXPRESSION
-            if (list[count].toktype == equalsym)
-            {
-                count++;
-                //EXPRESSION
-                emit(17, 0, 0, 1);
-            }
-            if (list[count].toktype == neqsym)
-            {
-                count++;
-                //EXPRESSION
-                emit(18, 0, 0, 1);
-            }
-            if (list[count].toktype == lesssym)
-            {
-                count++;
-                //EXPRESSION
-                emit(19, 0, 0, 1);
-            }
-            if (list[count].toktype == leqesym)
-            {
-                count++;
-                //EXPRESSION
-                emit(20, 0, 0, 1);
-            }
-            if (list[count].toktype == gtrsym)
-            {
-                count++;
-                //EXPRESSION
-                emit(21, 0, 0, 1);
-            }
-            if (list[count].toktype == geqesym)
-            {
-                count++;
-                //EXPRESSION
-                emit(22, 0, 0, 1);
-            }
-        }
-    }
-    EXPRESSION (regtoendupin = int where ans should go)
-    {
-        {
-            if (list[count].toktype == plussym)
-            {
-                count++;
-            }
-            if (list[count].toktype == minussym)
-            {
-                count++;
-                //TERM (regtoendupin+1, 0, 0)
-                emit(10, regtoendupin, 0, 0);
-                while ((list[count].toktype == plussym || list[count].toktype == minussym))
-                {
-                    if (list[count].toktype == plussym)
-                    {}
-    PROGRAM
-    {
-
-    }
-
-                        count++;
-                        //TERM (regtoendupin+1, 0, 0)
-                        emit(11, regtoendupin, regtoendupin, regtoendupin + 1);
-                    }
-                    if (list[count].toktype == minussym)
-                    {
-                        count++;
-                        //TERM (regtoendupin+1, 0, 0)
-                        emit(12, regtoendupin, regtoendupin, regtoendupin + 1);
-                    }
-                }
-                return; //??????
-            }
-            //TERM
-            while ((list[count].toktype == plussym || list[count].toktype == minussym))
-            {
-                if (list[count].toktype == plussym)
-                {
-                    count++;
-                    //TERM (regtoendupin+1)
-                    emit(11, regtoendupin, regtoendupin, regtoendupin + 1);
-                }
-                if (list[count].toktype == minussym)
-                {
-                    count++;
-                    //TERM (regtoendupin+1, 0, 0)
-                    emit(12, regtoendupin, regtoendupin, regtoendupin + 1);
-                }
-            }
-        }
-        TERM(regtoendupin)
-        {
-            //FACTOR (regtoendupin)
-            while (list[count].toktype == multsym || list[count].toktype == slashsym)
-            {
-                if (list[count].toktype == multsym)
-                {
-                    count++;
-                    //FACTOR (regtoendupin+1)
-                    emit(13, regtoendupin, regtoendupin, regtoendupin + 1);
-                }
-                if (list[count].toktype == slashsym)
-                {
-                    count++;
-                    //FACTOR (regtoendupin+1)
-                    emit(14, regtoendupin, regtoendupin, regtoendupin + 1);
-                }
-            }
-        }
-        FACTOR (regtoendupin)
-        {
-            if (list[count].toktype == identsym)
-            {
-                //save symbol table index
-            }
-            if (list[count].toktype == constsym)
-            {
-                emit(1, regtoendupin, 0, m from symbol table);
-            }
-            if (list[count].toktype == varsym)
-            {
-                emit(3, regtoendupin, 0, m from symbol table);
-            }
-            count++;
-            else if (list[count].toktype == numbersym)
-            {
-                emit(1, regtoendupin, 0, number value);
-                count++;
-            }
-            else
-            {
-                count++;
-                //EXPRESSION(regtoendupin)
-                count++;
-            }
-        }
-        void emit(int op, int r, int l, int m)
-        {
-            if (cx > CODE_SIZE)
-                error too much codeelse
-                {
-                    code[cx].op = op;
-                    code[cx].r = r;
-                    code[cx].l = l;
-                    code[cx].m = m;
-                    cx++;
-                }
-        }
-        STATEMENT return code;
-    }
-
-instruction* generate_code(symbol *table, lexeme *list)
-{
-	instruction *code = malloc(500 * sizeof(instruction));
-	printf("code has been generated\n");
-	return code;
+    return code;
 }

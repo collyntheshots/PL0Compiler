@@ -1,4 +1,9 @@
 # Hw03Parser
+
+Group:
+Collyn Lindley
+Trstin Young
+
 Part 3 in the compiler project, parser and code generation
 
 The files of the project:

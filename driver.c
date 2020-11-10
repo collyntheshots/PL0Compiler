@@ -6,14 +6,6 @@
 #include "codegen.h"
 #include "vm.h"
 
-void printCode1(instruction *code)
-{
-	int i;
-	for (i = 0; i < 500; i++)
-	{
-		printf("%d %d %d %d %d\n", i, code[i].op, code[i].r, code[i].l, code[i].m);
-	}
-}
 
 int main(int argc, char **argv)
 {
@@ -61,7 +53,19 @@ int main(int argc, char **argv)
 
 	instruction *code = generate_code(table, list); //codegen.c
 	//printCode1(code);
-	virtual_machine(code); //vm.c
+	if (printLex != 0)
+	{
+		printf("\n");
+		printList(list);
+		printf("\n");
+		printTable(list);
+	}
+	if (printAss != 0)
+	{
+		printCode(code);
+	}
+
+	virtual_machine(code, printVM); //vm.c
 
 	return 0;
 }

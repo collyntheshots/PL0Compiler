@@ -11,6 +11,7 @@
 int lexL1 = 0;
 int cx = 0;
 
+void printCode(instruction *code);
 instruction *emit(instruction *code, int op, int r, int l, int m);
 int lookup(char *str, symbol *table);
 instruction *program1(symbol *table, lexeme *list, instruction *code);
@@ -20,6 +21,16 @@ instruction *condition1(symbol *table, lexeme *list, instruction *code);
 instruction *expression1(int regToEndUpIn, symbol *table, lexeme *list, instruction *code);
 instruction *term1(int regToEndUpIn, symbol *table, lexeme *list, instruction *code);
 instruction *factor1(int regToEndUpIn, symbol *table, lexeme *list, instruction *code);
+
+void printCode(instruction *code)
+{
+	int i;
+	printf("\n");
+	for (i = 1; i < cx; i++)
+	{
+		printf("%d %d %d %d %d\n", i, code[i].op, code[i].r, code[i].l, code[i].m);
+	}
+}
 
 int lookup(char *str, symbol *table)
 {
@@ -306,6 +317,6 @@ instruction *generate_code(symbol *table, lexeme *list)
 {
 	instruction *code = malloc(500 * sizeof(instruction));
 	code = program1(table, list, code);
-	printf("code has been generated\n");
+	//printf("code has been generated\n");
 	return code;
 }

@@ -20,15 +20,14 @@ instruction text[MAX_CODE_LENGTH];
 int stack[MAX_STACK_HEIGHT];
 //creating 8 register files
 int RF[8];
+
 //creating a 'library' to determine an opcode's English equivalent
-const char instructionName[22][4] = {"LIT", "RTN", "LOD", "STO", "CAL", "INC", "JMP", "JPC", "SYS", "NEG", "ADD", "SUB", "MUL",
+char instructionN[22][4] = {"LIT", "RTN", "LOD", "STO", "CAL", "INC", "JMP", "JPC", "SYS", "NEG", "ADD", "SUB", "MUL",
                                      "DIV", "ODD", "MOD", "EQL", "NEQ", "LSS", "LEQ", "GTR", "GEQ"};
 
 //declaration of base function
 int base(int l, int base);
-void execute(instruction *code);
-void printExecution(void);
-void printCode(void);
+void execute(instruction *code, int print);
 //void initialize(void);
 //void store(instruction *code);
 
@@ -92,7 +91,7 @@ void store(instruction *code)
 }
 */
 
-void execute(instruction *code)
+void execute(instruction *code, int print)
 {
 	//printf("enter execute\n");
 	int OP, R, L, M;
@@ -103,7 +102,19 @@ void execute(instruction *code)
 	int ir = 0;
 	int haltFlag = 1;
 
-	//code = initialize();
+	if (print != 0)
+	{
+		printf("                                               pc      bp     sp\n");
+		printf("Initial values                                 %d      %d     %d\n", pc, bp, sp);
+		printf("Registers: ");
+		for (int i = 0; i < 8; i++)
+			printf("%d ", RF[i]);
+		printf("\n");
+		printf("Stack: ");
+		for (int i = 0; i < 15; i++)
+			printf("%d ", stack[i]);
+		printf("\n\n");
+	}
 
 	while (haltFlag == 1)
 	{
@@ -113,6 +124,10 @@ void execute(instruction *code)
 		R = code[pc].r;
 		L = code[pc].l;
 		M = code[pc].m;
+
+		if (print != 0)
+			printf("%d %s %d %d %d", pc, instructionN[text[pc].op - 1], text[pc].r, text[pc].l, text[pc].m);
+
 		pc++;
 		//switch for execution (22 opcodes, 22 cases)
 		switch (OP)
@@ -237,24 +252,31 @@ void execute(instruction *code)
 			   break;
 		}
 
+		if (print != 0)
+		{
+			//print the PC, BP, and SP
+			printf("                                   %d      %d     %d\n", pc, bp, sp);
+
+			//print values in registers
+			printf("Registers: ");
+			for (int i = 0; i < 8; i++)
+				printf("%d ", RF[i]);
+
+			printf("\n");
+			//print stack and lines to separate Ar's as necessary
+			printf("Stack: ");
+
+			for (int i = 999; i >= sp; i--)
+				printf("%d%s", stack[i], ((i % 5 == 0) && (i != sp)) ? " | " : " ");
+			printf("\n\n");
+		}
 	}
-	//printf("exit execute\n");
 }
 
-void printExecution(void)
-{
-
-}
-
-void printCode(void)
-{
-
-}
-
-void virtual_machine(instruction *code)
+void virtual_machine(instruction *code, int print)
 {
 	//printf("in vm\n");
-	execute(code);
-	printf("print the stack\n");
+	execute(code, print);
+	//printf("print the stack\n");
 	return;
 }

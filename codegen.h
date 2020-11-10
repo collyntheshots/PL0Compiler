@@ -13,6 +13,7 @@ typedef struct instruction
 	int m;
 } instruction;
 
+void printCode(instruction *code);
 instruction* generate_code(symbol *table, lexeme *list);
 
 #endif

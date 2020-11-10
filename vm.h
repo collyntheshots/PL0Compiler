@@ -3,6 +3,6 @@
 
 #include "codegen.h"
 
-void virtual_machine(instruction *code);
+void virtual_machine(instruction *code, int print);
 
 #endif

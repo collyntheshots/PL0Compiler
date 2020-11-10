@@ -434,7 +434,7 @@ symbol* parse(lexeme *list)
 {
 	symbol *table = malloc(500 * sizeof(symbol));
 	table = program(list, table);
-	printf("symbols are parsed\n");
+	//printf("symbols are parsed\n");
 	return table;
 }
 

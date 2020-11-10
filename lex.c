@@ -339,7 +339,7 @@ lexeme* lex_analyze(char *inputfile)
 	lexeme *list = malloc(500 * sizeof(lexeme));
 	list = procFile(inputfile, list);
 	//printList(list);
-	printf("lex is analyzed\n");
+	//printf("lex is analyzed\n");
 	return list;
 }
 

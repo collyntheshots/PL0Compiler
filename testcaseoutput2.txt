@@ -1,0 +1,617 @@
+__________________
+file: test/parserTest1.txt
+__________________
+. /*should do nothing.*/
+No errors, program is syntactically correct
+
+Lexeme List:
+19 
+
+Lexeme Table:
+lexeme	token type
+.	19
+
+1 6 0 0 3
+2 9 0 0 3
+                                               pc      bp     sp
+Initial values                                 0      999     1000
+Registers: 0 0 0 0 0 0 0 0 
+Stack: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+
+0  0 0 0                                   1      999     1000
+Registers: 0 0 0 0 0 0 0 0 
+Stack: 
+
+1  0 0 0                                   2      999     997
+Registers: 0 0 0 0 0 0 0 0 
+Stack: 0 0 0 
+
+2  0 0 0                                   3      999     997
+Registers: 0 0 0 0 0 0 0 0 
+Stack: 0 0 0 
+
+
+__________________
+file: test/parserTest2.txt
+__________________
+const a = 1; /* Now declaring some variables and constants.*/
+var b;
+.
+No errors, program is syntactically correct
+
+Lexeme List:
+28 2 a 9 3 1 18 29 2 b 18 19 
+
+Lexeme Table:
+lexeme	token type
+const	28
+a	2
+=	9
+1	3
+;	18
+var	29
+b	2
+;	18
+.	19
+
+1 6 0 0 4
+2 9 0 0 3
+                                               pc      bp     sp
+Initial values                                 0      999     1000
+Registers: 0 0 0 0 0 0 0 0 
+Stack: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+
+0  0 0 0                                   1      999     1000
+Registers: 0 0 0 0 0 0 0 0 
+Stack: 
+
+1  0 0 0                                   2      999     996
+Registers: 0 0 0 0 0 0 0 0 
+Stack: 0 0 0 0 
+
+2  0 0 0                                   3      999     996
+Registers: 0 0 0 0 0 0 0 0 
+Stack: 0 0 0 0 
+
+
+__________________
+file: test/parserTest3.txt
+__________________
+const a = 1;
+var b;
+b := a. /* Now we can run some actual code. */
+No errors, program is syntactically correct
+
+Lexeme List:
+28 2 a 9 3 1 18 29 2 b 18 2 b 20 2 a 19 
+
+Lexeme Table:
+lexeme	token type
+const	28
+a	2
+=	9
+1	3
+;	18
+var	29
+b	2
+;	18
+b	2
+:=	20
+a	2
+.	19
+
+1 6 0 0 4
+2 4 0 0 0
+3 9 0 0 3
+                                               pc      bp     sp
+Initial values                                 0      999     1000
+Registers: 0 0 0 0 0 0 0 0 
+Stack: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+
+0  0 0 0                                   1      999     1000
+Registers: 0 0 0 0 0 0 0 0 
+Stack: 
+
+1  0 0 0                                   2      999     996
+Registers: 0 0 0 0 0 0 0 0 
+Stack: 0 0 0 0 
+
+2  0 0 0                                   3      999     996
+Registers: 0 0 0 0 0 0 0 0 
+Stack: 0 0 0 0 
+
+3  0 0 0                                   4      999     996
+Registers: 0 0 0 0 0 0 0 0 
+Stack: 0 0 0 0 
+
+
+__________________
+file: test/parserTest4.txt
+__________________
+const a = 1;
+var b;
+b := b + 1.
+/* Cases 4-11 just test the ability to process basic math statements with 
+increasing complexity. Cases 8 and 9 should give errors, the rest should work. */
+No errors, program is syntactically correct
+
+Lexeme List:
+28 2 a 9 3 1 18 29 2 b 18 2 b 20 2 b 4 3 1 19 
+
+Lexeme Table:
+lexeme	token type
+const	28
+a	2
+=	9
+1	3
+;	18
+var	29
+b	2
+;	18
+b	2
+:=	20
+b	2
++	4
+1	3
+.	19
+
+1 6 0 0 4
+2 1 1 0 1
+3 11 0 0 1
+4 4 0 0 0
+5 9 0 0 3
+                                               pc      bp     sp
+Initial values                                 0      999     1000
+Registers: 0 0 0 0 0 0 0 0 
+Stack: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+
+0  0 0 0                                   1      999     1000
+Registers: 0 0 0 0 0 0 0 0 
+Stack: 
+
+1  0 0 0                                   2      999     996
+Registers: 0 0 0 0 0 0 0 0 
+Stack: 0 0 0 0 
+
+2  0 0 0                                   3      999     996
+Registers: 0 1 0 0 0 0 0 0 
+Stack: 0 0 0 0 
+
+3  0 0 0                                   4      999     996
+Registers: 1 1 0 0 0 0 0 0 
+Stack: 0 0 0 0 
+
+4  0 0 0                                   5      999     996
+Registers: 1 1 0 0 0 0 0 0 
+Stack: 1 0 0 0 
+
+5  0 0 0                                   6      999     996
+Registers: 1 1 0 0 0 0 0 0 
+Stack: 1 0 0 0 
+
+
+__________________
+file: test/parserTest5.txt
+__________________
+const a = 1;
+var b;
+b := b + 1 + a.
+No errors, program is syntactically correct
+
+Lexeme List:
+28 2 a 9 3 1 18 29 2 b 18 2 b 20 2 b 4 3 1 4 2 a 19 
+
+Lexeme Table:
+lexeme	token type
+const	28
+a	2
+=	9
+1	3
+;	18
+var	29
+b	2
+;	18
+b	2
+:=	20
+b	2
++	4
+1	3
++	4
+a	2
+.	19
+
+1 6 0 0 4
+2 1 1 0 1
+3 11 0 0 1
+4 11 0 0 1
+5 4 0 0 0
+6 9 0 0 3
+                                               pc      bp     sp
+Initial values                                 0      999     1000
+Registers: 0 0 0 0 0 0 0 0 
+Stack: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+
+0  0 0 0                                   1      999     1000
+Registers: 0 0 0 0 0 0 0 0 
+Stack: 
+
+1  0 0 0                                   2      999     996
+Registers: 0 0 0 0 0 0 0 0 
+Stack: 0 0 0 0 
+
+2  0 0 0                                   3      999     996
+Registers: 0 1 0 0 0 0 0 0 
+Stack: 0 0 0 0 
+
+3  0 0 0                                   4      999     996
+Registers: 1 1 0 0 0 0 0 0 
+Stack: 0 0 0 0 
+
+4  0 0 0                                   5      999     996
+Registers: 2 1 0 0 0 0 0 0 
+Stack: 0 0 0 0 
+
+5  0 0 0                                   6      999     996
+Registers: 2 1 0 0 0 0 0 0 
+Stack: 2 0 0 0 
+
+6  0 0 0                                   7      999     996
+Registers: 2 1 0 0 0 0 0 0 
+Stack: 2 0 0 0 
+
+
+__________________
+file: test/parserTest6.txt
+__________________
+const a = 1;
+var b;
+b := 1 * a.
+No errors, program is syntactically correct
+
+Lexeme List:
+28 2 a 9 3 1 18 29 2 b 18 2 b 20 3 1 6 2 a 19 
+
+Lexeme Table:
+lexeme	token type
+const	28
+a	2
+=	9
+1	3
+;	18
+var	29
+b	2
+;	18
+b	2
+:=	20
+1	3
+*	6
+a	2
+.	19
+
+1 6 0 0 4
+2 1 0 0 1
+3 13 0 0 1
+4 4 0 0 0
+5 9 0 0 3
+                                               pc      bp     sp
+Initial values                                 0      999     1000
+Registers: 0 0 0 0 0 0 0 0 
+Stack: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+
+0  0 0 0                                   1      999     1000
+Registers: 0 0 0 0 0 0 0 0 
+Stack: 
+
+1  0 0 0                                   2      999     996
+Registers: 0 0 0 0 0 0 0 0 
+Stack: 0 0 0 0 
+
+2  0 0 0                                   3      999     996
+Registers: 1 0 0 0 0 0 0 0 
+Stack: 0 0 0 0 
+
+3  0 0 0                                   4      999     996
+Registers: 0 0 0 0 0 0 0 0 
+Stack: 0 0 0 0 
+
+4  0 0 0                                   5      999     996
+Registers: 0 0 0 0 0 0 0 0 
+Stack: 0 0 0 0 
+
+5  0 0 0                                   6      999     996
+Registers: 0 0 0 0 0 0 0 0 
+Stack: 0 0 0 0 
+
+
+__________________
+file: test/parserTest7.txt
+__________________
+const a = 7;
+var b;
+b := 13 * a.
+No errors, program is syntactically correct
+
+Lexeme List:
+28 2 a 9 3 7 18 29 2 b 18 2 b 20 3 13 6 2 a 19 
+
+Lexeme Table:
+lexeme	token type
+const	28
+a	2
+=	9
+7	3
+;	18
+var	29
+b	2
+;	18
+b	2
+:=	20
+13	3
+*	6
+a	2
+.	19
+
+1 6 0 0 4
+2 1 0 0 13
+3 13 0 0 1
+4 4 0 0 0
+5 9 0 0 3
+                                               pc      bp     sp
+Initial values                                 0      999     1000
+Registers: 0 0 0 0 0 0 0 0 
+Stack: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+
+0  0 0 0                                   1      999     1000
+Registers: 0 0 0 0 0 0 0 0 
+Stack: 
+
+1  0 0 0                                   2      999     996
+Registers: 0 0 0 0 0 0 0 0 
+Stack: 0 0 0 0 
+
+2  0 0 0                                   3      999     996
+Registers: 13 0 0 0 0 0 0 0 
+Stack: 0 0 0 0 
+
+3  0 0 0                                   4      999     996
+Registers: 0 0 0 0 0 0 0 0 
+Stack: 0 0 0 0 
+
+4  0 0 0                                   5      999     996
+Registers: 0 0 0 0 0 0 0 0 
+Stack: 0 0 0 0 
+
+5  0 0 0                                   6      999     996
+Registers: 0 0 0 0 0 0 0 0 
+Stack: 0 0 0 0 
+
+
+__________________
+file: test/parserTest8.txt
+__________________
+const a = 7;
+var b;
+a := 13 * a.
+error indentifter not of type var
+
+__________________
+file: test/parserTest9.txt
+__________________
+const a = 7;
+var b;
+b := 13 * c.
+error indentifier not defined -> c
+
+__________________
+file: test/parserTest10.txt
+__________________
+const a = 7;
+var b;
+b := 13 * 4 + a.
+No errors, program is syntactically correct
+
+Lexeme List:
+28 2 a 9 3 7 18 29 2 b 18 2 b 20 3 13 6 3 4 4 2 a 19 
+
+Lexeme Table:
+lexeme	token type
+const	28
+a	2
+=	9
+7	3
+;	18
+var	29
+b	2
+;	18
+b	2
+:=	20
+13	3
+*	6
+4	3
++	4
+a	2
+.	19
+
+1 6 0 0 4
+2 1 0 0 13
+3 1 1 0 4
+4 13 0 0 1
+5 11 0 0 1
+6 4 0 0 0
+7 9 0 0 3
+                                               pc      bp     sp
+Initial values                                 0      999     1000
+Registers: 0 0 0 0 0 0 0 0 
+Stack: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+
+0  0 0 0                                   1      999     1000
+Registers: 0 0 0 0 0 0 0 0 
+Stack: 
+
+1  0 0 0                                   2      999     996
+Registers: 0 0 0 0 0 0 0 0 
+Stack: 0 0 0 0 
+
+2  0 0 0                                   3      999     996
+Registers: 13 0 0 0 0 0 0 0 
+Stack: 0 0 0 0 
+
+3  0 0 0                                   4      999     996
+Registers: 13 4 0 0 0 0 0 0 
+Stack: 0 0 0 0 
+
+4  0 0 0                                   5      999     996
+Registers: 52 4 0 0 0 0 0 0 
+Stack: 0 0 0 0 
+
+5  0 0 0                                   6      999     996
+Registers: 56 4 0 0 0 0 0 0 
+Stack: 0 0 0 0 
+
+6  0 0 0                                   7      999     996
+Registers: 56 4 0 0 0 0 0 0 
+Stack: 56 0 0 0 
+
+7  0 0 0                                   8      999     996
+Registers: 56 4 0 0 0 0 0 0 
+Stack: 56 0 0 0 
+
+
+__________________
+file: test/parserTest11.txt
+__________________
+const a = 7;
+var b;
+b := 13 * (4 + a).
+No errors, program is syntactically correct
+
+Lexeme List:
+28 2 a 9 3 7 18 29 2 b 18 2 b 20 3 13 6 15 3 4 4 2 a 16 19 
+
+Lexeme Table:
+lexeme	token type
+const	28
+a	2
+=	9
+7	3
+;	18
+var	29
+b	2
+;	18
+b	2
+:=	20
+13	3
+*	6
+(	15
+4	3
++	4
+a	2
+)	16
+.	19
+
+1 6 0 0 4
+2 1 0 0 13
+3 1 1 0 4
+4 11 1 1 2
+5 13 0 0 1
+6 4 0 0 0
+7 9 0 0 3
+                                               pc      bp     sp
+Initial values                                 0      999     1000
+Registers: 0 0 0 0 0 0 0 0 
+Stack: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+
+0  0 0 0                                   1      999     1000
+Registers: 0 0 0 0 0 0 0 0 
+Stack: 
+
+1  0 0 0                                   2      999     996
+Registers: 0 0 0 0 0 0 0 0 
+Stack: 0 0 0 0 
+
+2  0 0 0                                   3      999     996
+Registers: 13 0 0 0 0 0 0 0 
+Stack: 0 0 0 0 
+
+3  0 0 0                                   4      999     996
+Registers: 13 4 0 0 0 0 0 0 
+Stack: 0 0 0 0 
+
+4  0 0 0                                   5      999     996
+Registers: 13 4 0 0 0 0 0 0 
+Stack: 0 0 0 0 
+
+5  0 0 0                                   6      999     996
+Registers: 52 4 0 0 0 0 0 0 
+Stack: 0 0 0 0 
+
+6  0 0 0                                   7      999     996
+Registers: 52 4 0 0 0 0 0 0 
+Stack: 52 0 0 0 
+
+7  0 0 0                                   8      999     996
+Registers: 52 4 0 0 0 0 0 0 
+Stack: 52 0 0 0 
+
+
+__________________
+file: test/parserTest12.txt
+__________________
+const a = 7;
+var b;
+begin
+	b := a;
+end.
+
+/* Now check for reading begin-end clusters. */
+No errors, program is syntactically correct
+
+Lexeme List:
+28 2 a 9 3 7 18 29 2 b 18 21 2 b 20 2 a 18 22 19 
+
+Lexeme Table:
+lexeme	token type
+const	28
+a	2
+=	9
+7	3
+;	18
+var	29
+b	2
+;	18
+begin	21
+b	2
+:=	20
+a	2
+;	18
+end	22
+.	19
+
+1 6 0 0 4
+2 4 0 0 0
+3 9 0 0 3
+                                               pc      bp     sp
+Initial values                                 0      999     1000
+Registers: 0 0 0 0 0 0 0 0 
+Stack: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+
+0  0 0 0                                   1      999     1000
+Registers: 0 0 0 0 0 0 0 0 
+Stack: 
+
+1  0 0 0                                   2      999     996
+Registers: 0 0 0 0 0 0 0 0 
+Stack: 0 0 0 0 
+
+2  0 0 0                                   3      999     996
+Registers: 0 0 0 0 0 0 0 0 
+Stack: 0 0 0 0 
+
+3  0 0 0                                   4      999     996
+Registers: 0 0 0 0 0 0 0 0 
+Stack: 0 0 0 0 
+
+
+__________________
+file: test/parserTest13.txt
+__________________

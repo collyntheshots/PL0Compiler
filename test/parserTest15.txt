@@ -1,0 +1,10 @@
+const a = 7;
+var b;
+begin
+	read b;
+	if b < 0 then
+		write b
+end.
+
+/* Now we check your conditionals. This should print 
+your value back out only if it's negative. */

@@ -1,0 +1,6 @@
+var 5, y, z;
+begin
+	y := 3;
+	x := y + 56;
+	z := x + y;
+end.

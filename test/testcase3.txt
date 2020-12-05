@@ -1,0 +1,7 @@
+/* no semicolon on line 5 */
+var x, y;
+begin
+	y := 3;
+	x := y + 56
+end.
+/* no semicolon on line 5 */

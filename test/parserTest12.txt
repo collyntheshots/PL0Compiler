@@ -1,0 +1,7 @@
+const a = 7;
+var b;
+begin
+	b := a;
+end.
+
+/* Now check for reading begin-end clusters. */

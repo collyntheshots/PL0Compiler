@@ -1,0 +1,13 @@
+/* One of my final tests. This should output the first n squares. */
+
+var n, i, square;
+begin
+	read n;
+	i := 1;
+	while i <= n do
+		begin
+			square := i * i;
+			write square;
+			i := i + 1;
+		end;
+end.

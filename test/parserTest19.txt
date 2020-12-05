@@ -1,0 +1,28 @@
+/* This is by far my most elaborate program.
+It implements Euler's method to calculate 
+the GCD of two numbers. */
+var first, second, temp;
+begin
+	read first;
+	read second;
+	/* If either number is 0 or negative, don't output anything. */
+	if first <= 0 then 
+		temp := 1;
+	if second <= 0 then 
+		temp := 1;
+	if temp <> 1 then 
+		begin
+			/* Repeat until a subtraction yields 0. */
+			while first <> 0 do 
+				begin
+					if first < second then /* Swap so first is larger. */
+						begin 
+							temp := first;
+							first := second;
+							second := temp;
+						end;
+					first := first - second; /* Subtract the smaller from the larger. */
+				end;
+			write second; /*Whatever is left in the other number is the GCD. */
+		end;
+end.

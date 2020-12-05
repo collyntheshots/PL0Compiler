@@ -1,0 +1,9 @@
+var x, w;
+begin
+	x:= 4;
+	read w;
+	if w > x
+		w:= w + 1
+	write w;
+end.
+/* then expected */

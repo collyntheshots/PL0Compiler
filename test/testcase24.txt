@@ -1,0 +1,9 @@
+var x, w;
+begin
+	x:= 4;
+	read w;
+	while w > x
+		w:= w + 1
+	write w;
+end.
+/* missing do after while */

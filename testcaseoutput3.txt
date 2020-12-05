@@ -1,0 +1,191 @@
+var xallthesecharacters, y;
+begin
+	y := 3;
+	x := y + 56;
+end.
+Name is too long
+
+
+var x, 45y, z;
+begin
+	y := 3;
+	x := y + 56;
+	z := x + y;
+end.
+error expected identifier after var
+
+
+var x, y;
+begin
+	y := 1234567;
+	x := y + 56;
+end.
+Number is too long
+
+
+var x, y, z;
+begin
+	y := 3;
+    ' 
+	x := y + 56;
+	z := x + y;
+end.
+Invalid symbol -> '
+
+
+
+
+var 5, y, z;
+begin
+	y := 3;
+	x := y + 56;
+	z := x + y;
+end.
+error expected identifier after var
+
+
+var x, y, x;
+begin
+	y := 3;
+	x := y + 56;
+	z := x + y;
+end.
+error var identifier already defined
+
+
+const a;
+var x, y, z;
+begin
+	y := 3;
+	x := y + 56;
+	z := x + y;
+end.
+error expected '=' after identifier
+
+
+const a = b;
+var x, y, z;
+begin
+	y := 3;
+	x := y + 56;
+	z := x + y;
+end.
+error expected int value after '='
+
+
+var x, y, z
+begin
+	y := 3;
+	x := y + 56;
+	z := x + y;
+end.
+error expected semicolon
+
+
+var x, y, z;
+begin
+	a := 3;
+	x := y + 56;
+	z := x + y;
+end.
+error indentifier not defined -> a
+
+
+const a = 1;
+var x, y, z;
+begin
+	a := 3;
+	x := y + 56;
+	z := x + y;
+end.
+error indentifter not of type var
+
+
+var x, y, z;
+begin
+	y = 3;
+	x := y + 56;
+	z := x + y;
+end.
+error expected ':='
+
+
+var x, y, z;
+begin
+	y := 3;
+	x := y + 56;
+	z := x + y;
+.
+error in statement, endsym
+
+
+var x, y, z;
+begin
+	y := 3;
+    if x >= y 
+        z := 4;
+
+end.
+error expected one of the following: '!=' '=' '<>' '<' '<=' '>' '>='
+
+
+var x, y, z;
+begin
+	while x > y
+        y := z;
+end.
+error expected one of the following: '!=' '=' '<>' '<' '<=' '>' '>='
+
+
+var x, w;
+begin
+	x:= 4;
+	read w;
+	if w > x then
+		w:= (w + 1);
+	read;
+end.
+error expected one of the following: '!=' '=' '<>' '<' '<=' '>' '>='
+
+
+var x, w;
+begin
+	x:= 4;
+	read w;
+	if w > x then
+		w:= (w + 1);
+	write;
+end.
+error expected one of the following: '!=' '=' '<>' '<' '<=' '>' '>='
+
+
+var x, w;
+begin
+	x:= 4;
+	read w;
+	if w + x then
+		w:= w + 1;
+	write w;
+end.
+error expected one of the following: '!=' '=' '<>' '<' '<=' '>' '>='
+
+
+var x, w;
+begin
+	x:= 4;
+	read w;
+	if (w > x then
+		w:= w + 1;
+	write w;
+end.
+error expected ')'
+
+
+var x, w;
+begin
+	x:= 4;
+	w := *w + 1;
+end.
+error expected '('
+
+

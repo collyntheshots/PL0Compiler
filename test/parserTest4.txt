@@ -1,0 +1,5 @@
+const a = 1;
+var b;
+b := b + 1.
+/* Cases 4-11 just test the ability to process basic math statements with 
+increasing complexity. Cases 8 and 9 should give errors, the rest should work. */

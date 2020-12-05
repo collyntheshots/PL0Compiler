@@ -1,0 +1,307 @@
+__________________
+file: test/testcase1.txt
+__________________
+var x, y;
+begin
+	y := 3;
+	x := y + 56;
+end.
+/* no error */
+No errors, program is syntactically correct
+
+__________________
+file: test/testcase2.txt
+__________________
+var x, y, z;
+begin
+	y := 3;
+	x := y + 56;
+	z := x + y;
+end.
+/* no error */
+No errors, program is syntactically correct
+
+__________________
+file: test/testcase3.txt
+__________________
+/* no semicolon on line 5 */
+var x, y;
+begin
+	y := 3;
+	x := y + 56
+end.
+/* no semicolon on line 5 */
+No errors, program is syntactically correct
+
+__________________
+file: test/testcase4.txt
+__________________
+var xallthesecharacters, y;
+begin
+	y := 3;
+	x := y + 56;
+end.
+/* identifier too long */
+Name is too long
+
+__________________
+file: test/testcase5.txt
+__________________
+var x, y;
+begin
+	y := 1234567;
+	x := y + 56;
+end.
+/* num too long */
+Number is too long
+
+__________________
+file: test/testcase6.txt
+__________________
+var x, y;
+begin
+	y := 3;
+	x := y + 56;
+end
+/* no period */
+no period error
+
+__________________
+file: test/testcase7.txt
+__________________
+var x, y;
+begin
+	y = 3;
+	x = y + 56;
+end.
+/* = instead of := */
+error expected ':='
+
+__________________
+file: test/testcase8.txt
+__________________
+var x, y;
+begin
+	y :=;
+	x := y + 56;
+end.
+/* no number following := */
+error expected '('
+
+__________________
+file: test/testcase9.txt
+__________________
+var x, y;
+begin
+	x := y + 56;
+end.
+/* no error. Use to compare to results in doc, i guess? */
+No errors, program is syntactically correct
+
+__________________
+file: test/testcase10.txt
+__________________
+var;
+begin
+	x := y + 56;
+end.
+/* no identifier after var */
+error expected identifier after var
+
+__________________
+file: test/testcase11.txt
+__________________
+var x y;
+begin
+	x := y + 56;
+end.
+/* no comma between identifiers */
+error expected semicolon
+
+__________________
+file: test/testcase12.txt
+__________________
+var x, z;
+begin
+	x := y + 56;
+end.
+/* undeclared identifier. */
+error indentifier not defined -> y
+
+__________________
+file: test/testcase13.txt
+__________________
+var x, y;
+begin
+	x := y  56;
+end.
+/* no operator */
+error in statement, endsym
+no period error
+
+__________________
+file: test/testcase14.txt
+__________________
+var x, y;
+begin
+	 := y + 56;
+end.
+/* := without preceding ident */
+error in statement, endsym
+no period error
+
+__________________
+file: test/testcase15.txt
+__________________
+var x, w;
+begin
+	x:= 4;
+	read w;
+	if w > x then
+		w:= w + 1
+	write w;
+end.
+/* no error. */
+error expected one of the following: '!=' '=' '<>' '<' '<=' '>' '>='
+
+__________________
+file: test/testcase16.txt
+__________________
+var x, w;
+begin
+	x:= 4;
+	read w;
+	if w > x
+		w:= w + 1
+	write w;
+end.
+/* then expected */
+error expected one of the following: '!=' '=' '<>' '<' '<=' '>' '>='
+
+__________________
+file: test/testcase17.txt
+__________________
+var x, y;
+var x;
+begin
+	x := y + 56;
+end.
+/* x declared twice */
+no period error
+
+__________________
+file: test/testcase18.txt
+__________________
+var x, y;
+begin
+	x := y + 56;
+.
+/* no end keyword */
+error in statement, endsym
+
+__________________
+file: test/testcase19.txt
+__________________
+const x, y;
+begin
+	x := y + 56;
+end.
+/* assigned to constant */
+error expected '=' after identifier
+
+__________________
+file: test/testcase20.txt
+__________________
+var x, y;
+begin
+	x := y + 56;
+end.
+/* assigned to constant */
+No errors, program is syntactically correct
+
+__________________
+file: test/testcase21.txt
+__________________
+const x, y;
+begin
+	x := y + 56;
+end.
+/* assigned to constant */
+error expected '=' after identifier
+
+__________________
+file: test/testcase22.txt
+__________________
+const x, y;
+begin
+	x := y + 56;
+end.
+/* assigned to constant */
+error expected '=' after identifier
+
+__________________
+file: test/testcase23.txt
+__________________
+const x, y;
+begin
+	x := y + 56;
+end.
+/* assigned to constant */
+error expected '=' after identifier
+
+__________________
+file: test/testcase24.txt
+__________________
+var x, w;
+begin
+	x:= 4;
+	read w;
+	while w > x
+		w:= w + 1
+	write w;
+end.
+/* missing do after while */
+error expected one of the following: '!=' '=' '<>' '<' '<=' '>' '>='
+
+__________________
+file: test/testcase25.txt
+__________________
+var x, w;
+begin
+	x:= 4;
+	read w;
+	if w > x then
+		w:= (w + 1
+	write w;
+end.
+/* no closing ')' */
+error expected one of the following: '!=' '=' '<>' '<' '<=' '>' '>='
+
+__________________
+file: test/testcase26.txt
+__________________
+var x, w;
+begin
+	x:= 4;
+	read w;
+	if w  x then
+		w:= w + 1
+	write w;
+end.
+/* no relational operator */
+error expected one of the following: '!=' '=' '<>' '<' '<=' '>' '>='
+
+__________________
+file: test/testcase27.txt
+__________________
+var x, w;
+begin
+	x:= 4;
+	read w;
+	if w > x then
+		w:= (w + 1
+	read;
+end.
+/* empty read statement */
+error expected one of the following: '!=' '=' '<>' '<' '<=' '>' '>='
+

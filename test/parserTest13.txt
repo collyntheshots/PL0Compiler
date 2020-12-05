@@ -1,0 +1,7 @@
+const a = 7;
+var b;
+begin
+	read b;
+end.
+
+/* Now we start checking I/O. 13 checks reading, 14 also checks writing.*/

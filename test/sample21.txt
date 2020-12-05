@@ -1,0 +1,5 @@
+var x, w;
+begin
+	x:= 4;
+	w := *w + 1;
+end.

@@ -1,0 +1,9 @@
+const passwd = 6174; /* Keep the password a secret! */
+var entry;
+begin
+	while entry <> passwd do
+		read entry
+end.
+
+/* Now to test while loops. This one repeatedly accepts input 
+until you input the password. */

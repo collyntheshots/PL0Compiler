@@ -1,0 +1,3 @@
+const a = 1; /* Now declaring some variables and constants.*/
+var b;
+.

@@ -1,0 +1,16 @@
+const less = 1, eq = 2, more = 3, neql = 7;
+var b;
+begin
+	read b;
+	if b < 0 then
+		write less;
+	if b = 0 then
+		write eq;
+	if b > 0 then
+		write more;
+	if b <> 0 then
+		write neql;
+end.
+
+/* Now I can start doing fancier stuff; this one accepts a value, 
+then prints some constants to indicate the input's relation to 0. */

@@ -1,0 +1,5 @@
+var x, y;
+begin
+	x := y + 56;
+end.
+/* no error. Use to compare to results in doc, i guess? */

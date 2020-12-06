@@ -18,7 +18,7 @@ symbol *table;
 lexeme *list;
 
 void add(int kind, char *name, int val, int level, int addr, int mark);
-bool sanityCheck(char *str, int lexL);
+bool sanityCheck(char *str, int lexL, int kind);
 void program(void);
 void block(int lexL);
 int constDec(int lexL);

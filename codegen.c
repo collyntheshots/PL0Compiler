@@ -5,24 +5,27 @@
 #include "parser.h"
 #include "codegen.h"
 
-#define TOKEN list[lexL1].tokType
+#define TOKEN list[next].tokType
 #define CODE_SIZE 500
 
-int lexL1 = 0;
+int next = 0;
 int cx = 0;
+symbol *table;
+lexeme *list;
+instruction *code;
 
-void printCode(instruction *code);
-instruction *emit(instruction *code, int op, int r, int l, int m);
-int lookup(char *str, symbol *table);
-instruction *program1(symbol *table, lexeme *list, instruction *code);
-instruction *block1(symbol *table, lexeme *list, instruction *code);
-instruction *statement1(symbol *table, lexeme *list, instruction *code);
-instruction *condition1(symbol *table, lexeme *list, instruction *code);
-instruction *expression1(int regToEndUpIn, symbol *table, lexeme *list, instruction *code);
-instruction *term1(int regToEndUpIn, symbol *table, lexeme *list, instruction *code);
-instruction *factor1(int regToEndUpIn, symbol *table, lexeme *list, instruction *code);
+void printCode(void);
+int lookup(char *str);
+void program1(void);
+void block1(int lexL);
+void statement1(int lexL);
+void condition1(int lexL);
+void expression1(int regToEndUpIn, int lexL);
+void term1(int regToEndUpIn, int lexL);
+void factor1(int regToEndUpIn, int lexL);
+void emit(int op, int r, int l, int m);
 
-void printCode(instruction *code)
+void printCode(void)
 {
 	int i;
 	printf("\n");
@@ -32,7 +35,7 @@ void printCode(instruction *code)
 	}
 }
 
-int lookup(char *str, symbol *table)
+int lookup(char *str)
 {
 	int tx;
 
@@ -45,7 +48,7 @@ int lookup(char *str, symbol *table)
 	return (tx = -1);
 }
 
-instruction *program1(symbol *table, lexeme *list, instruction *code)
+void program1(void)
 {
 	code = emit(code, 7, 0, 0, 1);
 	code = block1(table, list, code);
@@ -53,7 +56,7 @@ instruction *program1(symbol *table, lexeme *list, instruction *code)
 	return code;
 }
 
-instruction *block1(symbol *table, lexeme *list, instruction *code)
+void block1(int lexL)
 {
 	int numVars = 0;
 	if (TOKEN == constsym)
@@ -78,7 +81,7 @@ instruction *block1(symbol *table, lexeme *list, instruction *code)
 	return code;
 }
 
-instruction *statement1(symbol *table, lexeme *list, instruction *code)
+void statement1(int lexL)
 {
 	int tx, temp, temp2;
 	if (TOKEN == identsym)
@@ -149,7 +152,7 @@ instruction *statement1(symbol *table, lexeme *list, instruction *code)
 	return code;
 }
 
-instruction *condition1(symbol *table, lexeme *list, instruction *code)
+void condition1(int lexL)
 {
 	if (TOKEN == oddsym)
 	{
@@ -200,7 +203,7 @@ instruction *condition1(symbol *table, lexeme *list, instruction *code)
 	return code;
 }
 
-instruction *expression1(int regToEndUpIn, symbol *table, lexeme *list, instruction *code)
+void expression1(int regToEndUpIn, int lexL)
 {
 	if (TOKEN == plussym)
 	{
@@ -247,7 +250,7 @@ instruction *expression1(int regToEndUpIn, symbol *table, lexeme *list, instruct
 	return code;
 }
 
-instruction *term1(int regToEndUpIn, symbol *table, lexeme *list, instruction *code)
+void term1(int regToEndUpIn, int lexL)
 {
 	code = factor1(regToEndUpIn, table, list, code);
 	while (TOKEN == multsym || TOKEN == slashsym)
@@ -268,7 +271,7 @@ instruction *term1(int regToEndUpIn, symbol *table, lexeme *list, instruction *c
 	return code;
 }
 
-instruction *factor1(int regToEndUpIn, symbol *table, lexeme *list, instruction *code)
+void factor1(int regToEndUpIn, int lexL)
 {
 	int tx;
 	if (TOKEN == identsym)
@@ -298,7 +301,7 @@ instruction *factor1(int regToEndUpIn, symbol *table, lexeme *list, instruction 
 	return code;
 }
 
-instruction *emit(instruction *code, int op, int r, int l, int m)
+void emit(int op, int r, int l, int m)
 {
 	if (cx > CODE_SIZE)
 		printf("error\n");
@@ -313,10 +316,12 @@ instruction *emit(instruction *code, int op, int r, int l, int m)
 	return code;
 }
 
-instruction *generate_code(symbol *table, lexeme *list)
+instruction *generate_code(symbol *t, lexeme *l)
 {
-	instruction *code = malloc(500 * sizeof(instruction));
-	code = program1(table, list, code);
-	//printf("code has been generated\n");
+	instruction *c = malloc(500 * sizeof(instruction));
+	code = c;
+	table = t;
+	list = l;
+	program1();
 	return code;
 }

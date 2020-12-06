@@ -5,54 +5,59 @@
 #include "parser.h"
 #include "lex.h"
 
-#define TOKEN list[lexL].tokType
+#define TOKEN list[next].tokType
 
 // enum of the different kinds of symbols
 typedef enum {
 	CONST = 1, VAR, PROC
 } kind;
 
-int lexL = 0;
-int numSym = 0;
+int next = 0;
+int totalSym = 0;
+symbol *table;
+lexeme *list;
 
-void add(symbol *table, int kind, char *name, int val, int level, int addr, int mark);
-bool sanityCheck(char *str, symbol *table);
-symbol *program(lexeme *list, symbol *table);
-symbol *block(lexeme *list, symbol *table);
-symbol *constDec(lexeme *list, symbol *table);
-symbol *varDec(lexeme *list, symbol *table);
-symbol *statement(lexeme *list, symbol *table);
-symbol *condition(lexeme *list, symbol *table);
-symbol *expression(lexeme *list, symbol *table);
-symbol *term(lexeme *list, symbol *table);
-symbol *factor(lexeme *list, symbol *table);
+void add(int kind, char *name, int val, int level, int addr, int mark);
+bool sanityCheck(char *str, int lexL);
+void program(void);
+void block(int lexL);
+int constDec(int lexL);
+int varDec(int lexL);
+int procDec(int lexL);
+int getKind(char *str);
+void statement(int lexL);
+void condition(int lexL);
+void expression(int lexL);
+void term(int lexL);
+void factor(int lexL);
 
 // adds token to the symbol table and returns the new table
-void add(symbol *table, int kind, char *name, int val, int level, int addr, int mark)
+void add(int kind, char *name, int val, int level, int addr, int mark)
 {
-	table[numSym].kind = kind;
-	strcpy(table[numSym].name, name);
-	table[numSym].val = val;
-	table[numSym].level = level;
-	table[numSym].addr = addr;
-	table[numSym].mark = mark;
-	numSym++;
+	table[totalSym].kind = kind;
+	strcpy(table[totalSym].name, name);
+	table[totalSym].val = val;
+	table[totalSym].level = level;
+	table[totalSym].addr = addr;
+	table[totalSym].mark = mark;
+	totalSym++;
 	//return table;
 }
 
 // returns false if the symbol is in the table and true if not
-bool sanityCheck(char *str, symbol *table)
+bool sanityCheck(char *str, int lexL)
 {
 	int i;
-	for (i = 0; i <= numSym; i++)
-		if (strcmp(str, table[i].name) == 0)
+	for (i = 0; i <= totalSym; i++)
+		if (strcmp(str, table[i].name) == 0 && (lexL == table[i].level) && (table[i].mark == 0))
 			return false;
 	return true;
 }
 
-symbol *program(lexeme *list, symbol *table)
+void program(void)
 {
-	table = block(list, table);
+	add(table, PROC, "main", 0, 0, 0, -1);
+	block(0);
 	if (TOKEN != periodsym)
 	{
 		printf("no period error\n");
@@ -62,66 +67,62 @@ symbol *program(lexeme *list, symbol *table)
 	return table;
 }
 
-symbol *block(lexeme *list, symbol *table)
+void block(int lexL)//////////////////////////////////////////
 {
-	if ((table = constDec(list, table)) == NULL)
-		return NULL;
-	if ((table = varDec(list, table)) == NULL)
-		return NULL;
-	if ((table = statement(list, table)) == NULL)
-		return NULL;
-	return table;
+	int numSym = 0;
+	numSym += constDec(lexL);
+	numSym += varDec(lexL);
+	numSym += procDec(lexL+1);
+	statment(lexL);
+	//mark the last numSymbols number of unmarked symbols
 }
 
-symbol *constDec(lexeme *list, symbol *table)
+int constDec(int lexL)
 {
 	char cache[1000];
+	int numConsts = 0;
 	if (TOKEN == constsym)
 	{
 		do{
-			lexL++;
+			next++;
 			if (TOKEN != identsym)
 			{
 				printf("error no identifier after const\n");
 				exit(1);
-				return NULL;
 			}
-			strcpy(cache, list[lexL].lex);
-			if (!sanityCheck(cache, table))
+			strcpy(cache, list[next].lex);
+			if (!sanityCheck(cache, lexL))
 			{
 				printf("error const identifier already defined\n");
 				exit(1);
-				return NULL;
 			}
-			lexL++;
+			next++;
 			if (TOKEN != eqsym)
 			{
 				printf("error expected '=' after identifier\n");
 				exit(1);
-				return NULL;
 			}
-			lexL++;
+			next++;
 			if (TOKEN != numbersym)
 			{
 				printf("error expected int value after '='\n");
 				exit(1);
-				return NULL;
 			}
-			add(table, 1, cache, atoi(list[lexL].lex), 0, 0, -1);
-			lexL++;
+			add(CONST, cache, atoi(list[next].lex), lexL, 0, 0);
+			next++;
+			numConsts++;
 		} while (TOKEN == commasym);
 		if (TOKEN != semicolonsym)
 		{
 			printf("error missing semicolon\n");
 			exit(1);
-			return NULL;
 		}
-		lexL++;
+		next++;
 	}
-	return table;
+	return numConsts;
 }
 
-symbol *varDec(lexeme *list, symbol *table)
+int varDec(int lexL)
 {
 	int numVars = 0;
 	char cache[1000];
@@ -129,197 +130,194 @@ symbol *varDec(lexeme *list, symbol *table)
 	{
 		do{
 			numVars++;
-			lexL++;
+			next++;
 			if (TOKEN != identsym)
 			{
 				printf("error expected identifier after var\n");
 				exit(1);
-				return NULL;
 			}
-			strcpy(cache, list[lexL].lex);
-			if (!sanityCheck(cache, table))
+			strcpy(cache, list[next].lex);
+			if (!sanityCheck(cache, lexL))
 			{
 				printf("error var identifier already defined\n");
 				exit(1);
-				return NULL;
 			}
-
-			add(table, 2, cache, 0, 0, numVars+2, -1);
-			lexL++;
+			add(VAR, cache, 0, 0, numVars+2, 0);
+			next++;
 		} while (TOKEN == commasym);
-
 		if (TOKEN != semicolonsym)
 		{
 			printf("error expected semicolon\n");
 			exit(1);
-			return NULL;
 		}
-		lexL++;
+		next++;
 	}
-	return table;
+	return numVars;
+}
+
+int procDec(int lexL)/////////////////////////////////////////
+{
+	int numProc = 0;
+	char cache[1000];
+	if (TOKEN == procsym)
+	{
+		do{
+			next++;
+			if (TOKEN != identsym)
+			{
+				printf("error expected identifier after proc\n");
+				exit(1);
+			}
+			strcpy(cache, list[next].lex);
+			if (!sanityCheck(cache, lexL))
+			{
+				printf("error var identifier already defined\n");
+				exit(1);
+			}
+			add(PROC, cache, 0, lexL, 0, 0);
+			next++;
+			block(lexL);
+			if (TOKEN != semicolonsym)
+			{
+				printf("error expected semicolon\n");
+				exit(1);
+			}
+			next++;
+			numPrco++;
+		} while (TOKEN == procsym);
+	}
+	return numProc;
 }
 
 // gets the "kind" of symbol, see enum kind up top for more information
-int getKind(char *str, symbol *table)
+int getKind(char *str)
 {
 	int i;
-	for (i = 0; i <= numSym; i++)
+	for (i = 0; i <= totalSym; i++)
 		if (strcmp(table[i].name, str) == 0)
 			return table[i].kind;
-
 	return -1;
 }
 
-symbol *statement(lexeme *list, symbol *table)
+void statement(int lexL)
 {
 	char cache[1000];
 	if (TOKEN == identsym)
 	{
-		strcpy(cache, list[lexL].lex);
-		if (sanityCheck(cache, table))
+		strcpy(cache, list[next].lex);
+		if (sanityCheck(cache, lexL))
 		{
 			printf("error indentifier not defined -> %s\n", cache);
 			exit(1);
-			return NULL;
 		}
+		/*
 		if (getKind(cache, table) != VAR)
 		{
 			printf("error indentifter not of type var\n");
 			exit(1);
-			return NULL;
 		}
-		lexL++;
+		*/
+		next++;
 		if (TOKEN != becomessym)
 		{
 			printf("error expected ':='\n");
 			exit(1);
-			return NULL;
 		}
-		lexL++;
-		return table = expression(list, table);
+		next++;
+		expression(lexL);
+		return;
+	}
+	if (TOKEN == callsym)
+	{
+		next++;
+		strcpy(cache, list[next].lex);
+		if (sanityCheck(cache, lexL))
+		{
+			printf("error indentifier not defined -> %s\n", cache);
+			exit(1);
+		}
+		next++;
+		return;
 	}
 	if (TOKEN == beginsym)
 	{
-		lexL++;
-		if ((table = statement(list, table)) == NULL)
-		{
-			printf("error\n");
-			return NULL;
-		}
-
+		next++;
+		statement(lexL);
 		while (TOKEN == semicolonsym)
 		{
-			lexL++;
-			if ((table = statement(list, table)) == NULL)
-			{
-				printf("error\n");
-				return NULL;
-			}
+			next++;
+			statement(lexL);
 		}
 		if(TOKEN != endsym)
 		{
 			printf("error in statement, endsym\n");
-			return NULL;
+			exit(1);
 		}
-		lexL++;
-		return table;
+		next++;
+		return;
 	}
 	if (TOKEN == ifsym)
 	{
-		lexL++;
-		if ((table = condition(list, table)) == NULL)
-		{
-			printf("error\n");
-			return NULL;
-		}
+		next++;
+		condition(lexL);
 		if (TOKEN != thensym)
 		{
 			printf("error expected 'then'\n");
 			exit(1);
-			return NULL;
 		}
-		lexL++;
-		if ((table = statement(list, table)) == NULL)
+		next++;
+		statement(lexL);
+		if (TOKEN == elsesym)
 		{
-			printf("error\n");
-			return NULL;
+			next++;
+			statement(lexL);
 		}
-		return table;
+		return;
 	}
 	if (TOKEN == whilesym)
 	{
-		lexL++;
-		if ((table = condition(list, table)) == NULL)
-		{
-			printf("error\n");
-			return NULL;
-		}
+		next++;
+		condition(lexL);
 		if (TOKEN != dosym)
 		{
 			printf("error expected 'do'\n");
 			exit(1);
-			return NULL;
 		}
-		lexL++;
-		if ((table = statement(list, table)) == NULL)
-		{
-			printf("error\n");
-			return NULL;
-		}
-		return table;
+		next++;
+		statement(lexL);
+		return;
 	}
 	if (TOKEN == readsym)
 	{
-		lexL++;
+		next++;
 		if (TOKEN != identsym)
 		{
 			printf("error expected identifier after read\n");
 			exit(1);
-			return NULL;
 		}
-		strcpy(cache, list[lexL].lex);
-		if (sanityCheck(cache, table))
+		strcpy(cache, list[next].lex);
+		if (sanityCheck(cache, lexL))
 		{
 			printf("error indentifier not defined -> %s\n", cache);
 			exit(1);
-			return NULL;
 		}
-		if (getKind(cache, table) != VAR)
-		{
-			printf("error indentifier not of type var\n");
-			exit(1);
-			return NULL;
-		}
-		lexL++;
-		return table;
+		next++;
+		return;
 	}
 	if (TOKEN == writesym)
 	{
-		lexL++;
-		if (TOKEN != identsym)
-		{
-			printf("error expected identifier after write\n");
-			exit(1);
-			return NULL;
-		}
-		strcpy(cache, list[lexL].lex);
-		if (sanityCheck(cache, table))
-		{
-			printf("error indentifier not defined -> %s\n", cache);
-			exit(1);
-			return NULL;
-		}
-		lexL++;
-		return table;
+		next++;
+		expression(lexL);
+		return;
 	}
-	return table;
+	return;
 }
 
-symbol *condition(lexeme *list, symbol *table)
+void condition(int lexL)
 {
 	if (TOKEN == oddsym)
 	{
-		lexL++;
+		next++;
 		if ((table = expression(list, table)) == NULL)
 		{
 			printf("error\n");
@@ -339,17 +337,17 @@ symbol *condition(lexeme *list, symbol *table)
 			exit(1);
 			return NULL;
 		}
-		lexL++;
+		next++;
 		table = expression(list, table);
 	}
 	return table;
 }
 
-symbol *expression(lexeme *list, symbol *table)
+void expression(int lexL)
 {
 	if (TOKEN == plussym || TOKEN == minussym)
 	{
-		lexL++;
+		next++;
 	}
 	if ((table = term(list, table)) == NULL)
 	{
@@ -358,7 +356,7 @@ symbol *expression(lexeme *list, symbol *table)
 	}
 	while (TOKEN == plussym || TOKEN == minussym)
 	{
-		lexL++;
+		next++;
 		if ((table = term(list, table)) == NULL)
 		{
 			printf("error\n");
@@ -368,7 +366,7 @@ symbol *expression(lexeme *list, symbol *table)
 	return table;
 }
 
-symbol *term(lexeme *list, symbol *table)
+void term(int lexL)
 {
 	if ((table = factor(list, table)) == NULL)
 	{
@@ -377,7 +375,7 @@ symbol *term(lexeme *list, symbol *table)
 	}
 	while (TOKEN == multsym || TOKEN == slashsym)
 	{
-		lexL++;
+		next++;
 		if ((table = factor(list, table)) == NULL)
 		{
 			printf("error\n");
@@ -387,27 +385,27 @@ symbol *term(lexeme *list, symbol *table)
 	return table;
 }
 
-symbol *factor(lexeme *list, symbol *table)
+void factor(int lexL)
 {
 	char cache[1000];
 	if (TOKEN == identsym)
 	{
-		strcpy(cache, list[lexL].lex);
+		strcpy(cache, list[next].lex);
 		if (sanityCheck(cache, table))
 		{
 			printf("error indentifier not defined -> %s\n", cache);
 			exit(1);
 			return NULL;
 		}
-		lexL++;
+		next++;
 	}
 	else if (TOKEN == numbersym)
 	{
-		lexL++;
+		next++;
 	}
 	else if(TOKEN == lparentsym)
 	{
-		lexL++;
+		next++;
 		if ((table = expression(list, table)) == NULL)
 		{
 			printf("error\n");
@@ -419,7 +417,7 @@ symbol *factor(lexeme *list, symbol *table)
 			exit(1);
 			return NULL;
 		}
-		lexL++;
+		next++;
 	}
 	else
 	{
@@ -430,11 +428,12 @@ symbol *factor(lexeme *list, symbol *table)
 	return table;
 }
 
-symbol* parse(lexeme *list)
+symbol* parse(lexeme *l)
 {
-	symbol *table = malloc(500 * sizeof(symbol));
-	table = program(list, table);
-	//printf("symbols are parsed\n");
+	symbol *t = malloc(500 * sizeof(symbol));
+	list = l;
+	table = t;
+	program();
 	return table;
 }
 

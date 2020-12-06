@@ -8,10 +8,10 @@ typedef struct symbol
 	int kind;
 	char name[12];
 	int val;
-	int level;
+	int level; // lexL
 	int addr;
-	int mark;
-	
+	int mark; // 0 == unmarked; 1 == marked
+
 } symbol;
 
 symbol* parse(lexeme *list);

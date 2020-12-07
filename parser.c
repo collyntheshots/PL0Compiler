@@ -24,7 +24,7 @@ void block(int lexL);
 int constDec(int lexL);
 int varDec(int lexL);
 int procDec(int lexL);
-int getKind(char *str);
+//int getKind(char *str);
 void statement(int lexL);
 void condition(int lexL);
 void expression(int lexL);
@@ -201,6 +201,7 @@ int procDec(int lexL)
 }
 
 // gets the "kind" of symbol, see enum kind up top for more information
+/*
 int getKind(char *str)
 {
 	int i;
@@ -209,6 +210,7 @@ int getKind(char *str)
 			return table[i].kind;
 	return -1;
 }
+*/
 
 void statement(int lexL)
 {

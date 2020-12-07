@@ -8,6 +8,11 @@
 #define TOKEN list[next].tokType
 #define CODE_SIZE 500
 
+// enum of the different kinds of symbols
+typedef enum {
+	CONST = 1, VAR, PROC
+} kind;
+
 int next = 0;
 int cx = 0;
 symbol *table;
@@ -27,58 +32,112 @@ void emit(int op, int r, int l, int m);
 
 void printCode(void)
 {
+    int i;
+    printf("\n");
+    for (i = 1; i < cx; i++)
+    {
+        printf("%d %d %d %d %d\n", i, code[i].op, code[i].r, code[i].l, code[i].m);
+    }
+}
+
+int lookup(char *str, int kind, int lexL)//////////////this needs to be going backwards
+{
 	int i;
-	printf("\n");
-	for (i = 1; i < cx; i++)
+
+	for (i = 0; i <= totalSym; i++)
 	{
-		printf("%d %d %d %d %d\n", i, code[i].op, code[i].r, code[i].l, code[i].m);
+		if ((strcmp(str, table[i].name) == 0) && (lexL == table[i].level) && (kind == table[i].kind))
+			return i;
 	}
+	return -1;
 }
 
-int lookup(char *str)
+void program1(void)//////////////////////////////////////////////////////
 {
-	int tx;
-
-	for (tx = 0; tx <= 500; tx++)
+	int i = 1, j;
+	for (j = 1; j < totalSym; j++ )//totalSym function
 	{
-		if (strcmp(str, table[tx].name) == 0)
-			return tx;
+		if (table[j].kind == PROC)
+		{
+			table[j].value = i;
+			i++;
+			emit(7, 0, 0, 0);
+		}
 	}
-
-	return (tx = -1);
+	block1(0);
+	for (i = 0; code[i].op == 7; i++)
+	{
+		code[i].m = table[i].addr;
+	}
+	for (i = 0; i <= cx; i++)
+	{
+		if (code[i].op == 5)
+		{
+			for (j = 0; j <= cx; j++)
+			{
+				if (code[j].m == code[i].m)
+				{
+					code[i].m = table[j].addr;
+				}
+			}
+		}
+	}
+	emit(code, 9, 0, 0, 3);
 }
 
-void program1(void)
+void unmark(char *str, int lexL, int kind)
 {
-	code = emit(code, 7, 0, 0, 1);
-	code = block1(table, list, code);
-	code = emit(code, 9, 0, 0, 3);
-	return code;
+	int i;
+	for(i = 0; i <= totalSym; i++)
+		if ((strcmp(str, table[i].name) == 0) && (lexL == table[i].level) && (kind == table[i].kind))
+			table[i].mark = 0;
 }
 
 void block1(int lexL)
 {
+	int numSymbols = 0;
 	int numVars = 0;
 	if (TOKEN == constsym)
 	{
 		do
 		{
-			lexL1 += 4;
+			next++;
+			numSymbols++;
+			unmark(list[next].lex, lexL, CONST);
+			next += 3;
 		} while (TOKEN == commasym);
-		lexL1++;
+		next++;
 	}
 	if (TOKEN == varsym)
 	{
 		do
 		{
+			next++;
 			numVars++;
-			lexL1 += 2;
+			numSymbols++;
+			unmark(list[next].lex, lexL, VAR);
+			next++;
 		} while (TOKEN == commasym);
-		lexL1++;
+		next++;
 	}
-	code = emit(code, 6, 0, 0, 3 + numVars);
-	code = statement1(table, list, code);
-	return code;
+	if (TOKEN == procsym)
+	{
+		do
+		{
+			next++;
+			numSymbols++;
+			unmark(list[next].lex, lexL, PROC);
+			next += 2;
+			block1(lexL + 1);
+			emit(2, 0, 0, 0);
+			next++;
+		} while (TOKEN == procsym);
+	}
+	table[next].addr = cx;
+	emit(6, 0, 0, 3 + ???????);
+	statement1(lexL);
+	for (i = numSym??????; i > 0; i--)
+		table[i].mark = 1;
 }
 
 void statement1(int lexL)
@@ -86,242 +145,247 @@ void statement1(int lexL)
 	int tx, temp, temp2;
 	if (TOKEN == identsym)
 	{
-		tx = lookup(list[lexL1].lex, table);
-		//code[lexL1].op = identsym;
-		lexL1 += 2;
-		code = expression1(0, table, list, code);
-		code = emit(code, 4, 0, 0, table[tx].val);
+		tx = lookup(list[next].lex, VAR, lexL);
+		next += 2;
+		expression1(0, lexL);
+		emit(4, 0, table[tx].level, table[tx].addr);
+	}
+	if(TOKEN == callsym)
+	{
+		next++;
+		tx = lookup(list[next].lex, PROC, lexL);
+		emit(5, 0, lexL - table[tx].level, table[tx].addr);
+		next++;
 	}
 	if (TOKEN == beginsym)
 	{
-		lexL1++;
-		code = statement1(table, list, code);
+		next++;
+		statement1(lexL);
 		while (TOKEN == semicolonsym)
 		{
-			lexL1++;
-			code = statement1(table, list, code);
+			next++;
+			statement1(lexL);
 		}
-		lexL1++;
+		next++;
 	}
 	if (TOKEN == ifsym)
 	{
-		lexL1++;
-		code = condition1(table, list, code);
+		next++;
+		condition1(lexL);
 		temp = cx;
-		code = emit(code, 8, 0, 0, 0);
-		lexL1++;
-		code = statement1(table, list, code);
-		code[temp].m = cx;
+		emit(8, 0, 0, 0);
+		next++;
+		statement1(lexL);
+		if (TOKEN == elsesym)
+		{
+			next++;
+			temp2 = cx;
+			emit(7, 0, 0, 0);
+			code[temp].m = cx;
+			statement1(lexL);
+			code[temp2].m = cx;
+		}
+		else
+		{
+			code[temp].m = cx;
+		}
 	}
 	if (TOKEN == whilesym)
 	{
-		lexL1++;
+		next++;
 		temp = cx;
-		code = condition1(table, list, code);
-		lexL1++;
+		condition1(lexL);
+		next++;
 		temp2 = cx;
-		code = emit(code, 8, 0, 0, 0);
-		code = statement1(table, list, code);
-		code = emit(code, 7, 0, 0, temp);
+		emit(8, 0, 0, 0);
+		statement1(lexL);
+		emit(7, 0, 0, temp);
 		code[temp2].m = cx;
 	}
 	if (TOKEN == readsym)
 	{
-		lexL1++;
-		tx = lookup(list[lexL1].lex, table);
-		lexL1++;
-		code = emit(code, 9, 0, 0, 2);
-		code = emit(code, 4, 0, 0, table[tx].addr);
+		next++;
+		tx = lookup(list[next].lex, VAR, lexL);
+		next++;
+		emit(9, 0, 0, 2);
+		emit(4, 0, lexL - table[tx].level, table[tx].addr);
 	}
 	if (TOKEN == writesym)
 	{
-		lexL1++;
-		tx = lookup(list[lexL1].lex, table);
-		if (TOKEN == varsym)
-		{
-			code = emit(code, 3, 0, 0, table[tx].addr);
-			code = emit(code, 9, 0, 0, 1);
-		}
-		if (TOKEN == constsym)
-		{
-			code = emit(code, 1, 0, 0, table[tx].val);
-			code = emit(code, 9, 0, 0, 1);
-		}
-		lexL1++;
+		next++;
+		expression1(0, lexL);
+		emit(9, 0, 0, 1);
+		next++;
 	}
-	return code;
 }
 
 void condition1(int lexL)
 {
 	if (TOKEN == oddsym)
 	{
-		lexL1++;
-		code = expression1(0, table, list, code);
-		code = emit(code, 15, 0, 0, 0);
+		next++;
+		expression1(0, lexL);
+		emit(15, 0, 0, 0);
 	}
 	else
 	{
-		code = expression1(0, table, list, code);
+		expression1(0, lexL);
 		if (TOKEN == eqsym)
 		{
-			lexL1++;
-			code = expression1(1, table, list, code);
-			code = emit(code, 17, 0, 0, 1);
+			next++;
+			expression1(1, lexL);
+			emit(17, 0, 0, 1);
 		}
 		if (TOKEN == neqsym)
 		{
-			lexL1++;
-			code = expression1(1, table, list, code);
-			code = emit(code, 18, 0, 0, 1);
+			next++;
+			expression1(1, lexL);
+			emit(18, 0, 0, 1);
 		}
 		if (TOKEN == lessym)
 		{
-			lexL1++;
-			code = expression1(1, table, list, code);
-			code = emit(code, 19, 0, 0, 1);
+			next++;
+			expression1(1, lexL);
+			emit(19, 0, 0, 1);
 		}
 		if (TOKEN == leqsym)
 		{
-			lexL1++;
-			code = expression1(1, table, list, code);
-			code = emit(code, 20, 0, 0, 1);
+			next++;
+			expression1(1, lexL);
+			emit(20, 0, 0, 1);
 		}
 		if (TOKEN == gtrsym)
 		{
-			lexL1++;
-			code = expression1(1, table, list, code);
-			code = emit(code, 21, 0, 0, 1);
+			next++;
+			expression1(1, lexL);
+			emit(21, 0, 0, 1);
 		}
 		if (TOKEN == geqsym)
 		{
-			lexL1++;
-			code = expression1(1, table, list, code);
-			code = emit(code, 22, 0, 0, 1);
+			next++;
+			expression1(1, lexL);
+			emit(22, 0, 0, 1);
 		}
 	}
-	return code;
 }
 
 void expression1(int regToEndUpIn, int lexL)
 {
 	if (TOKEN == plussym)
 	{
-		lexL1++;
+		next++;
 	}
 	if (TOKEN == minussym)
 	{
-		lexL1++;
-		code = term1(regToEndUpIn, table, list, code);
-		code = emit(code, 10, regToEndUpIn, 0, 0);
+		next++;
+		term1(regToEndUpIn, lexL);
+		emit(10, regToEndUpIn, 0, 0);
 		while (TOKEN == plussym || TOKEN == minussym)
 		{
 			if (TOKEN == plussym)
 			{
-				lexL1++;
-				code = term1(regToEndUpIn+1, table, list, code);
-				code = emit(code, 11, regToEndUpIn, regToEndUpIn, regToEndUpIn+1);
+				next++;
+				term1(regToEndUpIn + 1, lexL);
+				emit(11, regToEndUpIn, regToEndUpIn, regToEndUpIn + 1);
 			}
 			if (TOKEN == minussym)
 			{
-				lexL1++;
-				code = term1(regToEndUpIn+1, table, list, code);
-				code = emit(code, 12, regToEndUpIn, regToEndUpIn, regToEndUpIn+1);
+				next++;
+				term1(regToEndUpIn + 1, lexL);
+				emit(12, regToEndUpIn, regToEndUpIn, regToEndUpIn + 1);
 			}
 		}
-		return code;
 	}
-	code = term1(regToEndUpIn, table, list, code);
+	term1(regToEndUpIn, lexL);
 	while (TOKEN == plussym || TOKEN == minussym)
 	{
 		if (TOKEN == plussym)
 		{
-			lexL1++;
-			code = term1(regToEndUpIn+1, table, list, code);
-			code = emit(code, 11, regToEndUpIn, regToEndUpIn, regToEndUpIn+1);
+			next++;
+			term1(regToEndUpIn + 1, lexL);
+			emit(11, regToEndUpIn, regToEndUpIn, regToEndUpIn + 1);
 		}
 		if (TOKEN == minussym)
 		{
-			lexL1++;
-			code = term1(regToEndUpIn+1, table, list, code);
-			code = emit(code, 12, regToEndUpIn, regToEndUpIn, regToEndUpIn+1);
+			next++;
+			term1(regToEndUpIn + 1, lexL);
+			emit(12, regToEndUpIn, regToEndUpIn, regToEndUpIn + 1);
 		}
 	}
-	return code;
 }
 
 void term1(int regToEndUpIn, int lexL)
 {
-	code = factor1(regToEndUpIn, table, list, code);
+	factor1(regToEndUpIn, lexL);
 	while (TOKEN == multsym || TOKEN == slashsym)
 	{
 		if (TOKEN == multsym)
 		{
-			lexL1++;
-			code = factor1(regToEndUpIn + 1, table, list, code);
-			code = emit(code, 13, regToEndUpIn, regToEndUpIn, regToEndUpIn + 1);
+			next++;
+			factor1(regToEndUpIn + 1, lexL);
+			emit(13, regToEndUpIn, regToEndUpIn, regToEndUpIn + 1);
 		}
 		if (TOKEN == slashsym)
 		{
-			lexL1++;
-			code = factor1(regToEndUpIn + 1, table, list, code);
-			code = emit(code, 14, regToEndUpIn, regToEndUpIn, regToEndUpIn + 1);
+			next++;
+			factor1(regToEndUpIn + 1, lexL);
+			emit(14, regToEndUpIn, regToEndUpIn, regToEndUpIn + 1);
 		}
 	}
-	return code;
 }
 
 void factor1(int regToEndUpIn, int lexL)
 {
-	int tx;
+	int tx, tx2;
 	if (TOKEN == identsym)
 	{
-		tx = lookup(list[lexL1].lex, table);
+		tx = lookup(list[next].lex, VAR, lexL);
+		tx2 = lookup(list[next].lex, CONST, lexL);
+		if (tx2 >= tx)
+			tx = tx2;
 		if (TOKEN == constsym)
 		{
-			code = emit(code, 1, regToEndUpIn, 0, table[tx].val);
+			emit(1, regToEndUpIn, 0, table[tx].val);
 		}
 		if (TOKEN == varsym)
 		{
-			code = emit(code, 3, regToEndUpIn, 0, table[tx].addr);
+			emit(3, regToEndUpIn, lexL - table[tx].level, table[tx].addr);
 		}
-		lexL1++;
+		next++;
 	}
 	else if (TOKEN == numbersym)
 	{
-		code = emit(code, 1, regToEndUpIn, 0, atoi(list[lexL1].lex));
-		lexL1++;
+		emit(1, regToEndUpIn, 0, atoi(list[next].lex));
+		next++;
 	}
 	else
 	{
-		lexL1++;
-		code = expression1(regToEndUpIn, table, list, code);
-		lexL1++;
+		next++;
+		expression1(regToEndUpIn, lexL);
+		next++;
 	}
-	return code;
 }
 
 void emit(int op, int r, int l, int m)
 {
-	if (cx > CODE_SIZE)
-		printf("error\n");
-	else
-	{
-		code[cx].op = op;
-		code[cx].r = r;
-		code[cx].l = l;
-		code[cx].m = m;
-		cx++;
-	}
-	return code;
+    if (cx > CODE_SIZE)
+        printf("error\n");
+    else
+    {
+        code[cx].op = op;
+        code[cx].r = r;
+        code[cx].l = l;
+        code[cx].m = m;
+        cx++;
+    }
 }
 
 instruction *generate_code(symbol *t, lexeme *l)
 {
-	instruction *c = malloc(500 * sizeof(instruction));
-	code = c;
-	table = t;
-	list = l;
-	program1();
-	return code;
+    instruction *c = malloc(500 * sizeof(instruction));
+    code = c;
+    table = t;
+    list = l;
+    program1();
+    return code;
 }

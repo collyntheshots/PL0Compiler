@@ -52,10 +52,10 @@ int lookup(char *str, int kind, int lexL)
 	return -1;
 }
 
-void program1(void)//////////////////////////////////////////////////////
+void program1(void)
 {
 	int i = 1, j;
-	for (j = 1; j < totalSym; j++ )//totalSym function
+	for (j = 1; j < totalSym; j++ )
 	{
 		if (table[j].kind == PROC)
 		{

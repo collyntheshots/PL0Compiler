@@ -46,7 +46,7 @@ int lookup(char *str, int kind, int lexL)
 	int i;
 	for (i = totalSym; i >= 0; i--)
 	{
-		if ((strcmp(str, table[i].name) == 0) && (lexL == table[i].level) && (kind == table[i].kind))
+		if ((strcmp(str, table[i].name) == 0) && (lexL <= table[i].level) && (kind == table[i].kind))
 			return i;
 	}
 	return -1;

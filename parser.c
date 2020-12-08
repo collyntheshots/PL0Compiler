@@ -51,7 +51,7 @@ bool sanityCheck(char *str, int lexL, int kind)
 	{
 		for (i = totalSym; i >= 0; i--)
 		{
-			if (strcmp(str, table[i].name) == 0 && (lexL == table[i].level) && (table[i].mark == 0) && (table[i].kind == kind))
+			if ((strcmp(str, table[i].name) == 0) && (lexL == table[i].level) && (table[i].mark == 0) && (table[i].kind == kind))
 				return false;
 		}
 	}
@@ -59,7 +59,7 @@ bool sanityCheck(char *str, int lexL, int kind)
 	{
 		for (i = 0; i <= totalSym; i++)
 		{
-			if (strcmp(str, table[i].name) == 0 && (lexL == table[i].level) && (table[i].mark == 0))
+			if ((strcmp(str, table[i].name) == 0) && (lexL == table[i].level) && (table[i].mark == 0))
 				return false;
 		}
 	}
@@ -218,9 +218,9 @@ void statement(int lexL)
 	if (TOKEN == identsym)
 	{
 		strcpy(cache, list[next].lex);
-		if (!sanityCheck(cache, lexL, VAR))
+		if (sanityCheck(cache, lexL, VAR))
 		{
-			printf("error indentifier not defined -> %s\n", cache);
+			printf("error ident identifier not defined -> %s\n", cache);
 			exit(1);
 		}
 		next++;
@@ -239,7 +239,7 @@ void statement(int lexL)
 		strcpy(cache, list[next].lex);
 		if (sanityCheck(cache, lexL, PROC))
 		{
-			printf("error indentifier not defined -> %s\n", cache);
+			printf("error call identifier not defined -> %s\n", cache);
 			exit(1);
 		}
 		next++;
@@ -299,7 +299,7 @@ void statement(int lexL)
 		strcpy(cache, list[next].lex);
 		if (sanityCheck(cache, lexL, VAR))
 		{
-			printf("error indentifier not defined -> %s\n", cache);
+			printf("error read identifier not defined -> %s\n", cache);
 			exit(1);
 		}
 		next++;
@@ -364,9 +364,9 @@ void factor(int lexL)
 	if (TOKEN == identsym)
 	{
 		strcpy(cache, list[next].lex);
-		if (!sanityCheck(cache, lexL, VAR) || !sanityCheck(cache, lexL, CONST))
+		if (sanityCheck(cache, lexL, VAR) && sanityCheck(cache, lexL, CONST))
 		{
-			printf("error indentifier not defined -> %s\n", cache);
+			printf("error VAR or CONST identifier not defined -> %s\n", cache);
 			exit(1);
 		}
 		next++;

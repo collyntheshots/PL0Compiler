@@ -5,7 +5,7 @@
 #include "parser.h"
 #include "codegen.h"
 
-#define TOKEN list[next].tokType
+#define TOKEN list[next1].tokType
 #define CODE_SIZE 500
 
 // enum of the different kinds of symbols
@@ -14,14 +14,14 @@ typedef enum {
 } kind;
 
 extern int totalSym;
-int next = 0;
+int next1 = 0;
 int cx = 0;
 symbol *table;
 lexeme *list;
 instruction *code;
 
 void printCode(void);
-int lookup(char *str);
+int lookup(char *str, int kind, int lexL);
 void program1(void);
 void block1(int lexL);
 void statement1(int lexL);
@@ -59,7 +59,7 @@ void program1(void)//////////////////////////////////////////////////////
 	{
 		if (table[j].kind == PROC)
 		{
-			table[j].value = i;
+			table[j].val = i;
 			i++;
 			emit(7, 0, 0, 0);
 		}
@@ -82,7 +82,7 @@ void program1(void)//////////////////////////////////////////////////////
 			}
 		}
 	}
-	emit(code, 9, 0, 0, 3);
+	emit(9, 0, 0, 3);
 }
 
 void unmark(char *str, int lexL, int kind)
@@ -95,48 +95,47 @@ void unmark(char *str, int lexL, int kind)
 
 void block1(int lexL)
 {
-	int numSymbols = 0;
-	int numVars = 0;
+	int numSymbols = 0, numVars = 0, i;
 	if (TOKEN == constsym)
 	{
 		do
 		{
-			next++;
+			next1++;
 			numSymbols++;
-			unmark(list[next].lex, lexL, CONST);
-			next += 3;
+			unmark(list[next1].lex, lexL, CONST);
+			next1 += 3;
 		} while (TOKEN == commasym);
-		next++;
+		next1++;
 	}
 	if (TOKEN == varsym)
 	{
 		do
 		{
-			next++;
+			next1++;
 			numVars++;
 			numSymbols++;
-			unmark(list[next].lex, lexL, VAR);
-			next++;
+			unmark(list[next1].lex, lexL, VAR);
+			next1++;
 		} while (TOKEN == commasym);
-		next++;
+		next1++;
 	}
 	if (TOKEN == procsym)
 	{
 		do
 		{
-			next++;
+			next1++;
 			numSymbols++;
-			unmark(list[next].lex, lexL, PROC);
-			next += 2;
+			unmark(list[next1].lex, lexL, PROC);
+			next1 += 2;
 			block1(lexL + 1);
 			emit(2, 0, 0, 0);
-			next++;
+			next1++;
 		} while (TOKEN == procsym);
 	}
-	table[next].addr = cx;
-	emit(6, 0, 0, 3 + ???????);
+	table[next1].addr = cx;
+	emit(6, 0, 0, 3 + numVars);
 	statement1(lexL);
-	for (i = numSym??????; i > 0; i--)
+	for (i = numSymbols; i > 0; i--)
 		table[i].mark = 1;
 }
 
@@ -145,40 +144,40 @@ void statement1(int lexL)
 	int tx, temp, temp2;
 	if (TOKEN == identsym)
 	{
-		tx = lookup(list[next].lex, VAR, lexL);
-		next += 2;
+		tx = lookup(list[next1].lex, VAR, lexL);
+		next1 += 2;
 		expression1(0, lexL);
 		emit(4, 0, table[tx].level, table[tx].addr);
 	}
 	if(TOKEN == callsym)
 	{
-		next++;
-		tx = lookup(list[next].lex, PROC, lexL);
+		next1++;
+		tx = lookup(list[next1].lex, PROC, lexL);
 		emit(5, 0, lexL - table[tx].level, table[tx].addr);
-		next++;
+		next1++;
 	}
 	if (TOKEN == beginsym)
 	{
-		next++;
+		next1++;
 		statement1(lexL);
 		while (TOKEN == semicolonsym)
 		{
-			next++;
+			next1++;
 			statement1(lexL);
 		}
-		next++;
+		next1++;
 	}
 	if (TOKEN == ifsym)
 	{
-		next++;
+		next1++;
 		condition1(lexL);
 		temp = cx;
 		emit(8, 0, 0, 0);
-		next++;
+		next1++;
 		statement1(lexL);
 		if (TOKEN == elsesym)
 		{
-			next++;
+			next1++;
 			temp2 = cx;
 			emit(7, 0, 0, 0);
 			code[temp].m = cx;
@@ -192,10 +191,10 @@ void statement1(int lexL)
 	}
 	if (TOKEN == whilesym)
 	{
-		next++;
+		next1++;
 		temp = cx;
 		condition1(lexL);
-		next++;
+		next1++;
 		temp2 = cx;
 		emit(8, 0, 0, 0);
 		statement1(lexL);
@@ -204,18 +203,18 @@ void statement1(int lexL)
 	}
 	if (TOKEN == readsym)
 	{
-		next++;
-		tx = lookup(list[next].lex, VAR, lexL);
-		next++;
+		next1++;
+		tx = lookup(list[next1].lex, VAR, lexL);
+		next1++;
 		emit(9, 0, 0, 2);
 		emit(4, 0, lexL - table[tx].level, table[tx].addr);
 	}
 	if (TOKEN == writesym)
 	{
-		next++;
+		next1++;
 		expression1(0, lexL);
 		emit(9, 0, 0, 1);
-		next++;
+		next1++;
 	}
 }
 
@@ -223,7 +222,7 @@ void condition1(int lexL)
 {
 	if (TOKEN == oddsym)
 	{
-		next++;
+		next1++;
 		expression1(0, lexL);
 		emit(15, 0, 0, 0);
 	}
@@ -232,37 +231,37 @@ void condition1(int lexL)
 		expression1(0, lexL);
 		if (TOKEN == eqsym)
 		{
-			next++;
+			next1++;
 			expression1(1, lexL);
 			emit(17, 0, 0, 1);
 		}
 		if (TOKEN == neqsym)
 		{
-			next++;
+			next1++;
 			expression1(1, lexL);
 			emit(18, 0, 0, 1);
 		}
 		if (TOKEN == lessym)
 		{
-			next++;
+			next1++;
 			expression1(1, lexL);
 			emit(19, 0, 0, 1);
 		}
 		if (TOKEN == leqsym)
 		{
-			next++;
+			next1++;
 			expression1(1, lexL);
 			emit(20, 0, 0, 1);
 		}
 		if (TOKEN == gtrsym)
 		{
-			next++;
+			next1++;
 			expression1(1, lexL);
 			emit(21, 0, 0, 1);
 		}
 		if (TOKEN == geqsym)
 		{
-			next++;
+			next1++;
 			expression1(1, lexL);
 			emit(22, 0, 0, 1);
 		}
@@ -273,24 +272,24 @@ void expression1(int regToEndUpIn, int lexL)
 {
 	if (TOKEN == plussym)
 	{
-		next++;
+		next1++;
 	}
 	if (TOKEN == minussym)
 	{
-		next++;
+		next1++;
 		term1(regToEndUpIn, lexL);
 		emit(10, regToEndUpIn, 0, 0);
 		while (TOKEN == plussym || TOKEN == minussym)
 		{
 			if (TOKEN == plussym)
 			{
-				next++;
+				next1++;
 				term1(regToEndUpIn + 1, lexL);
 				emit(11, regToEndUpIn, regToEndUpIn, regToEndUpIn + 1);
 			}
 			if (TOKEN == minussym)
 			{
-				next++;
+				next1++;
 				term1(regToEndUpIn + 1, lexL);
 				emit(12, regToEndUpIn, regToEndUpIn, regToEndUpIn + 1);
 			}
@@ -301,13 +300,13 @@ void expression1(int regToEndUpIn, int lexL)
 	{
 		if (TOKEN == plussym)
 		{
-			next++;
+			next1++;
 			term1(regToEndUpIn + 1, lexL);
 			emit(11, regToEndUpIn, regToEndUpIn, regToEndUpIn + 1);
 		}
 		if (TOKEN == minussym)
 		{
-			next++;
+			next1++;
 			term1(regToEndUpIn + 1, lexL);
 			emit(12, regToEndUpIn, regToEndUpIn, regToEndUpIn + 1);
 		}
@@ -321,13 +320,13 @@ void term1(int regToEndUpIn, int lexL)
 	{
 		if (TOKEN == multsym)
 		{
-			next++;
+			next1++;
 			factor1(regToEndUpIn + 1, lexL);
 			emit(13, regToEndUpIn, regToEndUpIn, regToEndUpIn + 1);
 		}
 		if (TOKEN == slashsym)
 		{
-			next++;
+			next1++;
 			factor1(regToEndUpIn + 1, lexL);
 			emit(14, regToEndUpIn, regToEndUpIn, regToEndUpIn + 1);
 		}
@@ -339,8 +338,8 @@ void factor1(int regToEndUpIn, int lexL)
 	int tx, tx2;
 	if (TOKEN == identsym)
 	{
-		tx = lookup(list[next].lex, VAR, lexL);
-		tx2 = lookup(list[next].lex, CONST, lexL);
+		tx = lookup(list[next1].lex, VAR, lexL);
+		tx2 = lookup(list[next1].lex, CONST, lexL);
 		if (tx2 >= tx)
 			tx = tx2;
 		if (TOKEN == constsym)
@@ -351,18 +350,18 @@ void factor1(int regToEndUpIn, int lexL)
 		{
 			emit(3, regToEndUpIn, lexL - table[tx].level, table[tx].addr);
 		}
-		next++;
+		next1++;
 	}
 	else if (TOKEN == numbersym)
 	{
-		emit(1, regToEndUpIn, 0, atoi(list[next].lex));
-		next++;
+		emit(1, regToEndUpIn, 0, atoi(list[next1].lex));
+		next1++;
 	}
 	else
 	{
-		next++;
+		next1++;
 		expression1(regToEndUpIn, lexL);
-		next++;
+		next1++;
 	}
 }
 

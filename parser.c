@@ -83,7 +83,7 @@ void block(int lexL)
 	numSym += constDec(lexL);
 	numSym += varDec(lexL);
 	numSym += procDec(lexL+1);
-	statment(lexL);
+	statement(lexL);
 	for (i = numSym; i > 0; i--)
 		table[i].mark = 1;
 }
@@ -194,7 +194,7 @@ int procDec(int lexL)
 			}
 			next++;
 			block(lexL);
-			numPrco++;
+			numProc++;
 		} while (TOKEN == procsym);
 	}
 	return numProc;
@@ -364,7 +364,7 @@ void factor(int lexL)
 	if (TOKEN == identsym)
 	{
 		strcpy(cache, list[next].lex);
-		if (!sanityCheck(cache, table, VAR) || !sanityCheck(cache, table, CONST))
+		if (!sanityCheck(cache, lexL, VAR) || !sanityCheck(cache, lexL, CONST))
 		{
 			printf("error indentifier not defined -> %s\n", cache);
 			exit(1);

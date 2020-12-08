@@ -62,7 +62,7 @@ int main(int argc, char **argv)
 	}
 	if (printAss != 0)
 	{
-		printCode(code);
+		printCode();
 	}
 
 	virtual_machine(code, printVM); //vm.c

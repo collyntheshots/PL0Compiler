@@ -1,3 +1,9 @@
+//Collyn Lindley
+//Tristin Young
+//COP 3402 Systems Software
+//Professor Montagne
+//Dec 7 2020
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

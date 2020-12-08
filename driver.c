@@ -1,3 +1,9 @@
+//Collyn Lindley
+//Tristin Young
+//COP 3402 Systems Software
+//Professor Montagne
+//Dec 7 2020
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -52,6 +58,7 @@ int main(int argc, char **argv)
 	//printTable(list);
 
 	instruction *code = generate_code(table, list); //codegen.c
+	//printf("hello\n");
 	//printCode1(code);
 	if (printLex != 0)
 	{
@@ -66,6 +73,6 @@ int main(int argc, char **argv)
 	}
 
 	virtual_machine(code, printVM); //vm.c
-
+	//printf("hello2\n");
 	return 0;
 }

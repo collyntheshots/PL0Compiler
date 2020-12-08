@@ -1,8 +1,8 @@
-//Tristin Young
 //Collyn Lindley
+//Tristin Young
 //COP 3402 Systems Software
 //Professor Montagne
-// Sep 20 2020
+//Dec 7 2020
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -180,7 +180,6 @@ void execute(instruction *code, int print)
 			       haltFlag = 0;
 			   }
 			   break;
-
 			case 10:
 			   RF[R] = -RF[R];
 			   break;

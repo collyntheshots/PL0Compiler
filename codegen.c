@@ -13,6 +13,7 @@ typedef enum {
 	CONST = 1, VAR, PROC
 } kind;
 
+extern int totalSym;
 int next = 0;
 int cx = 0;
 symbol *table;
@@ -40,11 +41,10 @@ void printCode(void)
     }
 }
 
-int lookup(char *str, int kind, int lexL)//////////////this needs to be going backwards
+int lookup(char *str, int kind, int lexL)
 {
 	int i;
-
-	for (i = 0; i <= totalSym; i++)
+	for (i = totalSym; i >= 0; i--)
 	{
 		if ((strcmp(str, table[i].name) == 0) && (lexL == table[i].level) && (kind == table[i].kind))
 			return i;
